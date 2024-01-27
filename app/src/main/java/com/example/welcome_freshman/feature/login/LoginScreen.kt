@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -68,6 +69,24 @@ fun LoginRoute(
     onLoginClick: () -> Unit,
 ) {
 
+    // 隐藏状态需用
+    /*val window = (LocalContext.current as Activity).window
+    val windowInsetsController by remember {
+        mutableStateOf(WindowCompat.getInsetsController(window, window.decorView))
+    }
+
+    DisposableEffect(Unit) {
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        onDispose {
+            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+
+        }
+    }*/
 
     LoginScreen(onRegisterClick = onRegisterClick, onLoginClick = onLoginClick)
 }
@@ -109,13 +128,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
     val passwordFocusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
 
-    // 隐藏状态需用
-    val window = (LocalContext.current as Activity).window
-    val windowInsetsController by remember {
-        mutableStateOf(WindowCompat.getInsetsController(window, window.decorView))
-    }
-
-    val context = LocalContext.current
+    /*val context = LocalContext.current
     val player = remember {
         context.buildExoPlayer()
     }
@@ -124,18 +137,10 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
         modifier = Modifier.fillMaxSize()
     )
     DisposableEffect(Unit) {
-        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-        windowInsetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         onDispose {
-            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
-            WindowCompat.setDecorFitsSystemWindows(window, true)
-
             player.release()
         }
-    }
+    }*/
 
     Column(
         Modifier
@@ -166,7 +171,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
             modifier = Modifier.padding(top = 48.dp)
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "还没有账户?", color = Color.White)
+            Text(text = "还没有账户?")
             TextButton(onClick = onRegisterClick) {
                 Text(text = "注 册")
             }
@@ -209,7 +214,7 @@ fun TextInput(
         mutableStateOf("")
     }
 
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = { value = it },
         modifier = Modifier

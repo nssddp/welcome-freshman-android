@@ -65,7 +65,7 @@ class WfAppState(
             else -> null
         }
 
-    val shouldShowBottomBar: Boolean
+    val shouldShowBar: Boolean
         @Composable get() = currentTopLevelDestination != null
 
     /**

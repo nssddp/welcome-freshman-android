@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">welcome-freshman</string>
+
+    <string name="task_title">任务</string>
+    <string name="list_title">排行榜</string>
+    <string name="profile_title">我的</string>
 </resources>
