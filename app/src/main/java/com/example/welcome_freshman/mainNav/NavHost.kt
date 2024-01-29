@@ -7,14 +7,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
-import com.example.welcome_freshman.feature.list.listScreen
+import com.example.welcome_freshman.feature.detail.detailScreen
+import com.example.welcome_freshman.feature.detail.navigateToDetail
+import com.example.welcome_freshman.feature.main.list.listScreen
 import com.example.welcome_freshman.feature.login.LOGIN_GRAPH
 import com.example.welcome_freshman.feature.login.loginGraph
-import com.example.welcome_freshman.feature.profile.profileScreen
+import com.example.welcome_freshman.feature.main.profile.profileScreen
 import com.example.welcome_freshman.feature.register.navigateToRegister
 import com.example.welcome_freshman.feature.register.registerScreen
-import com.example.welcome_freshman.feature.task.TASK_ROUTE
-import com.example.welcome_freshman.feature.task.taskScreen
+import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
+import com.example.welcome_freshman.feature.main.task.taskScreen
 import com.example.welcome_freshman.ui.WfAppState
 
 /**
@@ -24,10 +26,9 @@ import com.example.welcome_freshman.ui.WfAppState
 
 @Composable
 fun WfNavHost(
-    paddingValues: PaddingValues,
     appState: WfAppState,
     startDestination: String = LOGIN_GRAPH,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
     NavHost(
@@ -55,8 +56,10 @@ fun WfNavHost(
             }
         )
         taskScreen()
-        listScreen()
+        listScreen(onDetailClick = navController::navigateToDetail)
         profileScreen()
+
+        detailScreen()
 
     }
 }

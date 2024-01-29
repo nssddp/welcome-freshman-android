@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.feature.task
+package com.example.welcome_freshman.feature.main.task
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder

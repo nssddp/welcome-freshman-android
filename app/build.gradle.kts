@@ -93,6 +93,13 @@ dependencies {
     implementation ("androidx.media3:media3-ui:1.2.1")
     implementation ("androidx.media3:media3-common:1.2.1")
 
+    //cameraX
+    val cameraxVersion = "1.2.0"
+    implementation("androidx.camera:camera-core:${cameraxVersion}")
+    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
+    implementation("androidx.camera:camera-view:${cameraxVersion}")
+
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

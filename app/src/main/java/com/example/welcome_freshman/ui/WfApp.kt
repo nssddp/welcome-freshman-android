@@ -1,21 +1,35 @@
 package com.example.welcome_freshman.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.DensityMedium
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.welcome_freshman.mainNav.TopLevelDestination
 import com.example.welcome_freshman.mainNav.WfNavHost
+import com.example.welcome_freshman.ui.component.WfBackground
 import com.example.welcome_freshman.ui.component.WfNavigationBar
 import com.example.welcome_freshman.ui.component.WfNavigationBarItem
 import com.example.welcome_freshman.ui.component.WfTopAppBar
@@ -25,39 +39,65 @@ import com.example.welcome_freshman.ui.component.WfTopAppBar
  *@author GFCoder
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun WfApp(appState: WfAppState = rememberWfAppState()) {
 
-    Scaffold(
-        topBar = {
-            val destination = appState.currentTopLevelDestination
-            if (destination != null) {
-                WfTopAppBar(
-                    titleRes = destination.titleTextId,
-                    navigationIcon = Icons.Rounded.Menu,
-                    navigationIconContentDescription = "",
-                    actionIcon = Icons.Rounded.Settings,
-                    actionIconContentDescription = ""
-                )
+    WfBackground {
+        val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = Color.Transparent,
+//            contentColor = MaterialTheme.colorScheme.onBackground,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+
+            bottomBar = {
+                if (appState.shouldShowBar) {
+                    WfBottomBar(
+                        destinations = appState.topLevelDestinations,
+                        onNavigateToDestination = appState::navigateToTopLevelDestination,
+                        currentDestination = appState.currentDestination
+                    )
+                }
             }
-        },
-        bottomBar = {
-            if (appState.shouldShowBar) {
-                WfBottomBar(
-                    destinations = appState.topLevelDestinations,
-                    onNavigateToDestination = appState::navigateToTopLevelDestination,
-                    currentDestination = appState.currentDestination
-                )
+        ) {
+            Row(
+                Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .consumeWindowInsets(it)
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Horizontal,
+                        ),
+                    ),
+            ) {
+                Column(Modifier.fillMaxSize()) {
+                    val destination = appState.currentTopLevelDestination
+                    if (destination != null) {
+                        WfTopAppBar(
+                            titleRes = destination.titleTextId,
+                            navigationIcon = Icons.Rounded.Menu,
+                            navigationIconContentDescription = "",
+                            actionIcon = Icons.Rounded.Settings,
+                            actionIconContentDescription = "",
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = Color.Transparent,
+                            ),
+                            scrollBehavior = scrollBehavior
+                        )
+                    }
+                    WfNavHost(
+                        appState = appState,
+                    )
+                }
+
+
             }
+
         }
-    ) {
-        WfNavHost(
-            paddingValues = it,
-            appState = appState,
-            modifier = Modifier
-                .padding(it)
-        )
+
     }
 
 }

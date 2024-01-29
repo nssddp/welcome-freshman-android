@@ -10,12 +10,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.example.welcome_freshman.feature.list.LIST_ROUTE
-import com.example.welcome_freshman.feature.list.navigateToList
-import com.example.welcome_freshman.feature.profile.PROFILE_ROUTE
-import com.example.welcome_freshman.feature.profile.navigateToProfile
-import com.example.welcome_freshman.feature.task.TASK_ROUTE
-import com.example.welcome_freshman.feature.task.navigateToTask
+import com.example.welcome_freshman.feature.main.list.LIST_ROUTE
+import com.example.welcome_freshman.feature.main.list.navigateToList
+import com.example.welcome_freshman.feature.main.profile.PROFILE_ROUTE
+import com.example.welcome_freshman.feature.main.profile.navigateToProfile
+import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
+import com.example.welcome_freshman.feature.main.task.navigateToTask
 import com.example.welcome_freshman.mainNav.TopLevelDestination
 import kotlinx.coroutines.CoroutineScope
 

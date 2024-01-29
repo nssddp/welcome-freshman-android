@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.feature.list
+package com.example.welcome_freshman.feature.main.list
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -16,10 +16,10 @@ fun NavController.navigateToList(navOptions: NavOptions) {
     this.navigate(LIST_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.listScreen() {
+fun NavGraphBuilder.listScreen(onDetailClick: () -> Unit) {
     composable(
         route = LIST_ROUTE
     ) {
-        ListRoute()
+        ListRoute(onDetailClick = onDetailClick)
     }
 }
