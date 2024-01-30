@@ -55,6 +55,9 @@ android {
 
 dependencies {
 
+    // 为了新的滑动下载
+    implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
+
     // compose-viewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
