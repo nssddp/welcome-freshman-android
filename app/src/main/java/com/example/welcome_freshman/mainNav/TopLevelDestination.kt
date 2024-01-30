@@ -1,27 +1,13 @@
 package com.example.welcome_freshman.mainNav
 
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.StackedBarChart
-import androidx.compose.material.icons.filled.Task
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Face
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material.icons.outlined.StackedBarChart
-import androidx.compose.material.icons.outlined.Task
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import com.example.welcome_freshman.R
 
 /**

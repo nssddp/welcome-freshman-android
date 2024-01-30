@@ -23,6 +23,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -69,7 +70,7 @@ fun ListScreen(onDetailClick: () -> Unit) {
 
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(top = 8.dp),
+            contentPadding = PaddingValues(top = 0.dp),
             modifier = Modifier
                 .fillMaxSize()
         ) {
@@ -139,7 +140,7 @@ fun RankItem(
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp), Arrangement.SpaceBetween
+            .padding(horizontal = 8.dp).padding(top = 6.dp, bottom = 6.dp), Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = nickName)
         if (rankIcon != null) {

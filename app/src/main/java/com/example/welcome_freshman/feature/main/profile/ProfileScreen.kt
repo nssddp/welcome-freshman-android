@@ -21,7 +21,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.feature.certification.CertificationDialog
 
 /**
  *@date 2024/1/27 10:40
@@ -45,12 +45,23 @@ import com.example.welcome_freshman.R
  */
 
 @Composable
-fun ProfileRoute() {
-    ProfileScreen()
+fun ProfileRoute(onAuthenticationClick: () -> Unit) {
+    ProfileScreen(onAuthenticationClick = onAuthenticationClick)
 }
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(onAuthenticationClick: () -> Unit) {
+    var showCertificationDialog by remember {
+        mutableStateOf(false)
+    }
+
+    if (showCertificationDialog) {
+        CertificationDialog(
+            onDismiss = {showCertificationDialog = false},
+            onFaceAuthenticationClick = onAuthenticationClick
+        )
+    }
+
     LazyColumn() {
         item {
             PersonalCard(
@@ -68,7 +79,9 @@ fun ProfileScreen() {
             CommonCard(
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp), cardName = "学生认证"
+                    .padding(horizontal = 16.dp)
+                    .clickable(onClick = { showCertificationDialog = true }),
+                cardName = "学生认证"
             )
             CommonDivider()
         }
@@ -180,9 +193,7 @@ fun CommonCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = cardName)
-            IconButton(onClick = {  }) {
-                Icon(imageVector = Icons.Default.ArrowForwardIos, contentDescription = null)
-            }
+            Icon(imageVector = Icons.Default.ArrowForwardIos, contentDescription = null)
         }
     }
 }

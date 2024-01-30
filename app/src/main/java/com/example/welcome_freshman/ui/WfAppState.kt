@@ -1,5 +1,8 @@
 package com.example.welcome_freshman.ui
 
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -28,17 +31,20 @@ import kotlinx.coroutines.CoroutineScope
 fun rememberWfAppState(
 //    windowSizeClass: WindowSizeClass,
     scope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 ): WfAppState {
     return remember(
 //        windowSizeClass,
         scope,
-        navController
+        navController,
+        drawerState
     ) {
         WfAppState(
 //            windowSizeClass,
             scope,
-            navController
+            navController,
+            drawerState
         )
     }
 }
@@ -48,8 +54,10 @@ fun rememberWfAppState(
 class WfAppState(
 //    val windowSizeClass: WindowSizeClass,
     val scope: CoroutineScope,
-    val navController: NavHostController
+    val navController: NavHostController,
+    val drawerState: DrawerState
 ) {
+
 
     val currentDestination: NavDestination?
         @Composable get() = navController
@@ -87,5 +95,7 @@ class WfAppState(
         }
 
     }
+//    fun navigateToProfile() = navController.navigateToProfile()
+
 
 }
