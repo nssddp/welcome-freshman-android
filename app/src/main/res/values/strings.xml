@@ -1,7 +1,13 @@
 <resources>
-    <string name="app_name">welcome-freshman</string>
+    <string name="app_name">西柚迎新</string>
 
     <string name="task_title">任务</string>
     <string name="list_title">排行榜</string>
     <string name="profile_title">我的</string>
+
+    <string name="today_task_title">今日任务</string>
+
+
+    <string name="task_in_progress_title">进行中</string>
+    <string name="task_completed_title">已完成</string>
 </resources>

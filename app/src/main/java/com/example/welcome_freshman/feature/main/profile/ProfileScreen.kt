@@ -24,14 +24,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.feature.certification.CertificationDialog
+import kotlinx.coroutines.launch
 
 /**
  *@date 2024/1/27 10:40
@@ -51,9 +58,11 @@ import com.example.welcome_freshman.feature.certification.CertificationDialog
 
 @Composable
 fun ProfileRoute(onAuthenticationClick: () -> Unit) {
+
     ProfileScreen(onAuthenticationClick = onAuthenticationClick)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
     var showCertificationDialog by remember {
@@ -67,6 +76,34 @@ fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
         )
     }
 
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+    val pickMedia = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                selectedImageUri = uri
+                Log.d("PhotoPicker", "Selected URI: $uri")
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
+        }
+    )
+
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    if (showBottomSheet) {
+        bottomSheet(
+            sheetState = sheetState,
+            showBottomSheet = { showBottomSheet = it },
+            onSelectAvatarClick = {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+        )
+
+    }
+
     LazyColumn() {
         item {
             PersonalCard(
@@ -75,7 +112,9 @@ fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
                     .padding(horizontal = 16.dp)
                     .height(175.dp),
                 nickName = "昵称",
-                department = "计算机与软件学院"
+                department = "计算机与软件学院",
+                selectedImageUri = selectedImageUri,
+                onAvatarClick = { showBottomSheet = true }
             )
             CommonDivider()
         }
@@ -116,22 +155,10 @@ fun PersonalCard(
     modifier: Modifier = Modifier,
     nickName: String,
     department: String,
+    selectedImageUri: Uri?,
+    onAvatarClick: () -> Unit,
 ) {
 
-    var selectedImageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-    val pickMedia = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            if (uri != null) {
-                selectedImageUri = uri
-                Log.d("PhotoPicker", "Selected URI: $uri")
-            } else {
-                Log.d("PhotoPicker", "No media selected")
-            }
-        }
-    )
 
     Surface(
         shape = MaterialTheme.shapes.medium,
@@ -156,7 +183,8 @@ fun PersonalCard(
                             },
                             indication = null
                         ) {
-                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+//                            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            onAvatarClick()
                         }
                 )
                 Column(Modifier.padding(start = 12.dp, top = 8.dp)) {
@@ -232,6 +260,67 @@ fun CommonDivider() {
         color = Color.Transparent,
         modifier = Modifier.padding(vertical = 8.dp)
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun bottomSheet(
+    sheetState: SheetState,
+    showBottomSheet: (Boolean) -> Unit,
+    onSelectAvatarClick: () -> Unit
+) {
+    /*BottomSheetScaffold(sheetContent = ) {
+        
+    }*/
+
+    val scope = rememberCoroutineScope()
+    ModalBottomSheet(
+        onDismissRequest = { showBottomSheet(false) },
+        sheetState = sheetState
+    ) {
+        /*Button(onClick = {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    showBottomSheet(false)
+                }
+            }
+        }) {
+            Text("Hide bottom sheet")
+        }*/
+        Column(
+            Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Divider()
+            TextButton(onClick = {}, Modifier.fillMaxWidth()) {
+                Text("view avatar")
+            }
+            Divider()
+            TextButton(onClick = onSelectAvatarClick, Modifier.fillMaxWidth()) {
+                Text("change avatar")
+            }
+            Divider()
+            TextButton(
+                onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet(false)
+                        }
+                    }
+                },
+                Modifier.fillMaxWidth()
+            ) {
+                Text("Hide bottom sheet")
+
+            }
+
+        }
+
+    }
+
 }
 
 @Preview(showBackground = true)

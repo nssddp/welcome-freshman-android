@@ -1,7 +1,6 @@
 package com.example.welcome_freshman.feature.login
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -25,9 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,18 +35,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -57,6 +50,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 
 /**
  *@date 2024/1/25 17:26
@@ -155,7 +149,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
             Modifier.size(80.dp),
             tint = Color.White
         )
-        TextInput(InputType.Name, keyboardActions = KeyboardActions(onNext = {
+        TextInput(InputType.StuId, keyboardActions = KeyboardActions(onNext = {
             passwordFocusRequester.requestFocus()
         }))
         TextInput(InputType.Password, keyboardActions = KeyboardActions(onDone = {
@@ -185,8 +179,8 @@ sealed class InputType(
     val keyboardOptions: KeyboardOptions,
     val visualTransformation: VisualTransformation
 ) {
-    object Name : InputType(
-        label = "昵称",
+    object StuId : InputType(
+        label = "学号",
         icon = Icons.Default.Person,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         visualTransformation = VisualTransformation.None
@@ -228,5 +222,17 @@ fun TextInput(
         visualTransformation = inputType.visualTransformation,
         keyboardActions = keyboardActions
     )
+
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun loginScreenPreview() {
+    WelcomeFreshmanTheme {
+        LoginScreen(onRegisterClick = { /*TODO*/ }) {
+
+        }
+    }
 
 }

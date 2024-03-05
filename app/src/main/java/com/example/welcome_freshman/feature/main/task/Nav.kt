@@ -16,10 +16,10 @@ fun NavController.navigateToTask(navOptions: NavOptions) {
     this.navigate(TASK_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.taskScreen() {
+fun NavGraphBuilder.taskScreen(onDetailClick: (String) -> Unit = {}) {
     composable(
         route = TASK_ROUTE
     ) {
-        TaskRoute()
+        TaskRoute(onDetailClick = onDetailClick)
     }
 }

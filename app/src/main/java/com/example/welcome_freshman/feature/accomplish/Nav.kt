@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.feature.detail
+package com.example.welcome_freshman.feature.accomplish
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.EaseIn
@@ -10,23 +10,25 @@ import androidx.compose.animation.fadeOut
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.example.welcome_freshman.feature.detail.DETAIL_ROUTE
+import com.example.welcome_freshman.feature.detail.DetailRoute
 
 /**
- *@date 2024/1/28 9:31
+ *@date 2024/3/5 13:51
  *@author GFCoder
  */
 
-const val DETAIL_ROUTE = "detail_route"
+const val ACCOMPLISH_ROUTE = "Accomplish_route"
 
-fun NavController.navigateToDetail(id: String) {
-    this.navigate(DETAIL_ROUTE) {
+fun NavController.navigateToAccomplish(id: String) {
+    this.navigate(ACCOMPLISH_ROUTE) {
         launchSingleTop = true
     }
 }
 
-fun NavGraphBuilder.detailScreen(onBackClick: () -> Unit, onAccomplishClick: (String) -> Unit) {
+fun NavGraphBuilder.accomplishScreen(onBackClick: () -> Unit) {
     composable(
-        route = DETAIL_ROUTE,
+        route = ACCOMPLISH_ROUTE,
         enterTransition = {
             fadeIn(
                 animationSpec = tween(
@@ -48,6 +50,6 @@ fun NavGraphBuilder.detailScreen(onBackClick: () -> Unit, onAccomplishClick: (St
             )
         }
     ) {
-        DetailRoute(onBackClick = onBackClick, onAccomplishClick = onAccomplishClick)
+        AccomplishRoute(onBackClick = onBackClick)
     }
 }

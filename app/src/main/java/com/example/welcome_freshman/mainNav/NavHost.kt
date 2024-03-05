@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import com.example.welcome_freshman.feature.accomplish.accomplishScreen
+import com.example.welcome_freshman.feature.accomplish.navigateToAccomplish
 import com.example.welcome_freshman.feature.certification.cameraScreen
 import com.example.welcome_freshman.feature.certification.navigateToCamera
 import com.example.welcome_freshman.feature.detail.detailScreen
@@ -58,12 +60,15 @@ fun WfNavHost(
                 registerScreen()
             }
         )
-        taskScreen()
-        listScreen(onDetailClick = navController::navigateToDetail)
+        taskScreen(onDetailClick = navController::navigateToDetail)
+        listScreen()
         profileScreen(onAuthenticationClick = navController::navigateToCamera)
-
-        detailScreen()
+        detailScreen(
+            onBackClick = { navController.popBackStack() },
+            onAccomplishClick = navController::navigateToAccomplish
+        )
         cameraScreen()
+        accomplishScreen(onBackClick = { navController.popBackStack() })
     }
 
     BackHandler(enabled = appState.drawerState.isOpen) {

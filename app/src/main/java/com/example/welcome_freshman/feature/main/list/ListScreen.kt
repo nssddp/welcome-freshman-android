@@ -53,13 +53,13 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun ListRoute(onDetailClick: () -> Unit) {
-    ListScreen(onDetailClick = onDetailClick)
+fun ListRoute() {
+    ListScreen()
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ListScreen(onDetailClick: () -> Unit = {}) {
+fun ListScreen() {
     val tabList = listOf("排行榜1", "排行榜2", "排行榜3")
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState {
@@ -127,7 +127,7 @@ fun ListScreen(onDetailClick: () -> Unit = {}) {
                     }
                 }
 
-                for (i in 3 until 51) {
+                for (i in 4 until 51) {
                     item {
                         Divider(
                             Modifier.padding(vertical = 3.dp),

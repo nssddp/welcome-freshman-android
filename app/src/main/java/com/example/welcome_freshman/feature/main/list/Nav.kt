@@ -16,10 +16,10 @@ fun NavController.navigateToList(navOptions: NavOptions) {
     this.navigate(LIST_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.listScreen(onDetailClick: () -> Unit) {
+fun NavGraphBuilder.listScreen() {
     composable(
         route = LIST_ROUTE
     ) {
-        ListRoute(onDetailClick = onDetailClick)
+        ListRoute()
     }
 }
