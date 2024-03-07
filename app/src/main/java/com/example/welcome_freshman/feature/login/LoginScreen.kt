@@ -122,6 +122,13 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
     val passwordFocusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
 
+    var stuId by remember {
+        mutableStateOf("")
+    }
+    var password by remember {
+        mutableStateOf("")
+    }
+
     /*val context = LocalContext.current
     val player = remember {
         context.buildExoPlayer()
@@ -149,13 +156,22 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
             Modifier.size(80.dp),
             tint = Color.White
         )
-        TextInput(InputType.StuId, keyboardActions = KeyboardActions(onNext = {
-            passwordFocusRequester.requestFocus()
-        }))
-        TextInput(InputType.Password, keyboardActions = KeyboardActions(onDone = {
-            focusManager.clearFocus()
-            onLoginClick()
-        }), focusRequest = passwordFocusRequester)
+        TextInput(
+            InputType.StuId,
+            keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
+            valueChange = { stuId = it },
+            showValue = { stuId }
+        )
+        TextInput(
+            InputType.Password,
+            keyboardActions = KeyboardActions(onDone = {
+                focusManager.clearFocus()
+                onLoginClick()
+            }),
+            focusRequest = passwordFocusRequester,
+            valueChange = { password = it },
+            showValue = { password }
+        )
         Button(onClick = onLoginClick, modifier = Modifier.fillMaxWidth()) {
             Text(text = "登 录", Modifier.padding(vertical = 8.dp))
         }
@@ -201,16 +217,14 @@ sealed class InputType(
 fun TextInput(
     inputType: InputType,
     focusRequest: FocusRequester? = null,
-    keyboardActions: KeyboardActions
+    keyboardActions: KeyboardActions,
+    valueChange: (String) -> Unit,
+    showValue: () -> String,
 ) {
 
-    var value by remember {
-        mutableStateOf("")
-    }
-
     OutlinedTextField(
-        value = value,
-        onValueChange = { value = it },
+        value = showValue(),
+        onValueChange = { valueChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focusRequester = focusRequest ?: FocusRequester()),

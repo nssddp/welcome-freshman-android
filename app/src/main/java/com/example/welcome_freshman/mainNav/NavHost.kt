@@ -21,6 +21,8 @@ import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
 import com.example.welcome_freshman.feature.main.task.taskScreen
 import com.example.welcome_freshman.feature.register.navigateToRegister
 import com.example.welcome_freshman.feature.register.registerScreen
+import com.example.welcome_freshman.feature.updateUserInfo.navigateToUpdateUser
+import com.example.welcome_freshman.feature.updateUserInfo.updateUserScreen
 import com.example.welcome_freshman.ui.WfAppState
 import kotlinx.coroutines.launch
 
@@ -62,13 +64,17 @@ fun WfNavHost(
         )
         taskScreen(onDetailClick = navController::navigateToDetail)
         listScreen()
-        profileScreen(onAuthenticationClick = navController::navigateToCamera)
+        profileScreen(
+            onAuthenticationClick = navController::navigateToCamera,
+            onUpdateUserClick = navController::navigateToUpdateUser
+        )
         detailScreen(
             onBackClick = { navController.popBackStack() },
             onAccomplishClick = navController::navigateToAccomplish
         )
         cameraScreen()
         accomplishScreen(onBackClick = { navController.popBackStack() })
+        updateUserScreen(onBackClick = { navController.popBackStack() })
     }
 
     BackHandler(enabled = appState.drawerState.isOpen) {

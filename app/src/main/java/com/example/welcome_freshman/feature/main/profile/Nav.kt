@@ -16,10 +16,10 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
     this.navigate(PROFILE_ROUTE, navOptions)
 }
 
-fun NavGraphBuilder.profileScreen(onAuthenticationClick: () -> Unit) {
+fun NavGraphBuilder.profileScreen(onAuthenticationClick: () -> Unit,onUpdateUserClick: (Int) -> Unit) {
     composable(
         route = PROFILE_ROUTE
     ) {
-        ProfileRoute(onAuthenticationClick = onAuthenticationClick)
+        ProfileRoute(onAuthenticationClick = onAuthenticationClick, onUpdateUserClick = onUpdateUserClick)
     }
 }

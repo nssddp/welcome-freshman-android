@@ -1,8 +1,6 @@
 package com.example.welcome_freshman.feature.main.profile
 
 import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -34,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,8 +45,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.core.rememberPhotoPicker
 import com.example.welcome_freshman.feature.certification.CertificationDialog
 import kotlinx.coroutines.launch
 
@@ -57,14 +58,27 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun ProfileRoute(onAuthenticationClick: () -> Unit) {
+fun ProfileRoute(
+    viewModel: ProfileViewModel = hiltViewModel(),
+    onAuthenticationClick: () -> Unit,
+    onUpdateUserClick: (Int) -> Unit
+) {
+    val profileUiState by viewModel.profileUiState.collectAsState()
 
-    ProfileScreen(onAuthenticationClick = onAuthenticationClick)
+    ProfileScreen(
+        profileUiState = profileUiState,
+        onAuthenticationClick = onAuthenticationClick,
+        onUpdateUserClick = onUpdateUserClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
+fun ProfileScreen(
+    profileUiState: ProfileUiState,
+    onAuthenticationClick: () -> Unit = {},
+    onUpdateUserClick: (Int) -> Unit = {}
+) {
     var showCertificationDialog by remember {
         mutableStateOf(false)
     }
@@ -79,7 +93,7 @@ fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
-    val pickMedia = rememberLauncherForActivityResult(
+    /*val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             if (uri != null) {
@@ -89,7 +103,13 @@ fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
                 Log.d("PhotoPicker", "No media selected")
             }
         }
-    )
+    )*/
+
+    val pickMedia = rememberPhotoPicker { uri ->
+        if (uri != null) {
+            selectedImageUri = uri
+        }
+    }
 
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -104,47 +124,55 @@ fun ProfileScreen(onAuthenticationClick: () -> Unit = {}) {
 
     }
 
-    LazyColumn() {
-        item {
-            PersonalCard(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(175.dp),
-                nickName = "昵称",
-                department = "计算机与软件学院",
-                selectedImageUri = selectedImageUri,
-                onAvatarClick = { showBottomSheet = true }
-            )
-            CommonDivider()
+    LazyColumn(Modifier.fillMaxSize()) {
+        when (profileUiState) {
+            ProfileUiState.Loading -> {}
+            ProfileUiState.Error -> TODO()
+            is ProfileUiState.Success -> {
+                item {
+                    PersonalCard(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .height(175.dp),
+                        nickName = profileUiState.user.userName,
+                        department = profileUiState.user.academy,
+                        selectedImageUri = selectedImageUri,
+                        onAvatarClick = { showBottomSheet = true }
+                    )
+                    CommonDivider()
+                }
+
+                item {
+                    CommonCard(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .clickable(onClick = { showCertificationDialog = true }),
+                        cardName = "学生认证"
+                    )
+                    CommonDivider()
+                }
+                item {
+                    CommonCard(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .clickable(onClick = { onUpdateUserClick(1) }), cardName = "个人信息修改"
+                    )
+                    CommonDivider()
+                }
+                item {
+                    CommonCard(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp), cardName = "积分商城"
+                    )
+                    CommonDivider()
+                }
+            }
         }
 
-        item {
-            CommonCard(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .clickable(onClick = { showCertificationDialog = true }),
-                cardName = "学生认证"
-            )
-            CommonDivider()
-        }
-        item {
-            CommonCard(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp), cardName = "个人信息修改"
-            )
-            CommonDivider()
-        }
-        item {
-            CommonCard(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp), cardName = "积分商城"
-            )
-            CommonDivider()
-        }
 
     }
 
@@ -158,7 +186,6 @@ fun PersonalCard(
     selectedImageUri: Uri?,
     onAvatarClick: () -> Unit,
 ) {
-
 
     Surface(
         shape = MaterialTheme.shapes.medium,
@@ -249,7 +276,12 @@ fun CommonCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = cardName)
-            Icon(imageVector = Icons.Default.ArrowForwardIos, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.ArrowForwardIos,
+                contentDescription = null,
+                tint = Color.Gray,
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }
@@ -269,14 +301,11 @@ fun bottomSheet(
     showBottomSheet: (Boolean) -> Unit,
     onSelectAvatarClick: () -> Unit
 ) {
-    /*BottomSheetScaffold(sheetContent = ) {
-        
-    }*/
-
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismissRequest = { showBottomSheet(false) },
-        sheetState = sheetState
+        sheetState = sheetState,
+        dragHandle = {}
     ) {
         /*Button(onClick = {
             scope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -294,7 +323,6 @@ fun bottomSheet(
             verticalArrangement = Arrangement.spacedBy(6.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Divider()
             TextButton(onClick = {}, Modifier.fillMaxWidth()) {
                 Text("view avatar")
             }
@@ -323,8 +351,9 @@ fun bottomSheet(
 
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun profilePreview() {
-    ProfileScreen()
+//    ProfileScreen()
 }

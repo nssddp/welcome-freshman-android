@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 private const val DividerLengthInDegrees = 1.8f
 @Composable
 fun AnimatedCircle(
-    proportions: List<Float>,
-    colors: List<Color>,
+    proportion: Float, // 使用单一比例而不是列表
+    color: Color, // 使用单一颜色而不是颜色列表
     modifier: Modifier = Modifier
 ) {
     val currentState = remember {
@@ -47,7 +47,7 @@ fun AnimatedCircle(
         if (progress == AnimatedCircleProgress.START) {
             0f
         } else {
-            360f
+            360f * proportion // 根据比例计算最终角度
         }
     }
     val shift by transition.animateFloat(
@@ -75,19 +75,18 @@ fun AnimatedCircle(
         )
         val size = Size(innerRadius * 2, innerRadius * 2)
         var startAngle = shift - 90f
-        proportions.forEachIndexed { index, proportion ->
-            val sweep = proportion * angleOffset
-            drawArc(
-                color = colors[index],
-                startAngle = startAngle + DividerLengthInDegrees / 2,
-                sweepAngle = sweep - DividerLengthInDegrees,
-                topLeft = topLeft,
-                size = size,
-                useCenter = false,
-                style = stroke
-            )
-            startAngle += sweep
-        }
+
+        // 绘制圆环的部分
+        val sweep = angleOffset
+        drawArc(
+            color = color,
+            startAngle = startAngle + DividerLengthInDegrees / 2,
+            sweepAngle = sweep - DividerLengthInDegrees,
+            topLeft = topLeft,
+            size = size,
+            useCenter = false,
+            style = stroke
+        )
     }
 }
 
