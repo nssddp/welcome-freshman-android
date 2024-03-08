@@ -50,6 +50,7 @@ import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.core.rememberPhotoPicker
 import com.example.welcome_freshman.feature.certification.CertificationDialog
+import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
 import kotlinx.coroutines.launch
 
 /**
@@ -124,10 +125,14 @@ fun ProfileScreen(
 
     }
 
-    LazyColumn(Modifier.fillMaxSize()) {
+    LazyColumn(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         when (profileUiState) {
-            ProfileUiState.Loading -> {}
-            ProfileUiState.Error -> TODO()
+            ProfileUiState.Loading -> {
+                item { IndeterminateCircularIndicator() }
+            }
+            ProfileUiState.Error -> {
+
+            }
             is ProfileUiState.Success -> {
                 item {
                     PersonalCard(

@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import com.example.welcome_freshman.feature.accomplish.accomplishScreen
 import com.example.welcome_freshman.feature.accomplish.navigateToAccomplish
@@ -14,6 +15,7 @@ import com.example.welcome_freshman.feature.certification.navigateToCamera
 import com.example.welcome_freshman.feature.detail.detailScreen
 import com.example.welcome_freshman.feature.detail.navigateToDetail
 import com.example.welcome_freshman.feature.login.LOGIN_GRAPH
+import com.example.welcome_freshman.feature.login.LoginViewModel
 import com.example.welcome_freshman.feature.login.loginGraph
 import com.example.welcome_freshman.feature.main.list.listScreen
 import com.example.welcome_freshman.feature.main.profile.profileScreen

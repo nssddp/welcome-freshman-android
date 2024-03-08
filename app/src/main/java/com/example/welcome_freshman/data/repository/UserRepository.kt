@@ -1,14 +1,13 @@
 package com.example.welcome_freshman.data.repository
 
+import com.example.welcome_freshman.data.model.LoginRequest
 import com.example.welcome_freshman.data.model.User
+import com.example.welcome_freshman.data.network.NetworkResponse
 import com.example.welcome_freshman.data.network.WfNetworkDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -16,13 +15,17 @@ import javax.inject.Inject
  *@author GFCoder
  */
 interface UserRepository {
-    suspend fun getUserById(id: String): Flow<User>
+    suspend fun getUserById(id: String):User
+
+    suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User>
 }
 
 class MainUserRepository @Inject constructor(
     private val network: WfNetworkDataSource
 ) : UserRepository {
-    override suspend fun getUserById(id: String): Flow<User> = network.getUserById(id)
+    override suspend fun getUserById(id: String):User = network.getUserById(id)
+    override suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User> = network.loginCheck(loginRequest)
+
 }
 
 @Module

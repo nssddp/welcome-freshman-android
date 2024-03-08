@@ -7,8 +7,6 @@ import com.example.welcome_freshman.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +22,11 @@ class ProfileViewModel @Inject constructor(
     private val _profileUiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
     val profileUiState: StateFlow<ProfileUiState> = _profileUiState
 
-    fun getUserById(id: String) {
+    init {
+        getUserInfo("2")
+    }
+
+    /*fun getUserById(id: String) {
         viewModelScope.launch {
             userRepository.getUserById(id)
                 .map { user ->
@@ -36,6 +38,13 @@ class ProfileViewModel @Inject constructor(
                 .collect { uiState ->
                     _profileUiState.value = uiState
                 }
+        }
+    }*/
+
+    private fun getUserInfo(id: String) {
+        viewModelScope.launch {
+            _profileUiState.value = ProfileUiState.Success(userRepository.getUserById(id))
+
         }
     }
 

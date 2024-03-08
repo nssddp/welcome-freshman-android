@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -51,6 +54,7 @@ import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
+import kotlinx.coroutines.launch
 
 /**
  *@date 2024/1/25 17:26
@@ -61,6 +65,7 @@ import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 fun LoginRoute(
     onRegisterClick: () -> Unit,
     onLoginClick: () -> Unit,
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
 
     // 隐藏状态需用
@@ -81,8 +86,25 @@ fun LoginRoute(
 
         }
     }*/
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    LoginScreen(onRegisterClick = onRegisterClick, onLoginClick = onLoginClick)
+    LoginScreen(
+        onRegisterClick = onRegisterClick,
+        onLoginClick = { stuId, pwd ->
+            scope.launch {
+                if (stuId.isNotBlank() && pwd.isNotBlank()) {
+                    if (viewModel.doLogin(stuId.toInt(), pwd)) {
+                        onLoginClick()
+                    } else {
+                        context.doLogin("账号或密码输入错误，请重试!")
+                    }
+                } else {
+                    context.doLogin("账号或密码为空!")
+                }
+            }
+        },
+    )
 }
 
 @SuppressLint("DiscouragedApi")
@@ -109,16 +131,16 @@ private fun Context.buildPlayerView(exoPlayer: ExoPlayer) =
         resizeMode = RESIZE_MODE_ZOOM
     }
 
-private fun Context.doLogin() {
+private fun Context.doLogin(text: String) {
     Toast.makeText(
         this,
-        "账号或密码输入错误，请重试!",
+        text,
         Toast.LENGTH_SHORT
     ).show()
 }
 
 @Composable
-fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
+fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: (stuId: String, pwd: String) -> Unit) {
     val passwordFocusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
 
@@ -166,13 +188,16 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
             InputType.Password,
             keyboardActions = KeyboardActions(onDone = {
                 focusManager.clearFocus()
-                onLoginClick()
+                onLoginClick(stuId, password)
             }),
             focusRequest = passwordFocusRequester,
             valueChange = { password = it },
             showValue = { password }
         )
-        Button(onClick = onLoginClick, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { onLoginClick(stuId, password) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(text = "登 录", Modifier.padding(vertical = 8.dp))
         }
         Divider(
@@ -244,9 +269,7 @@ fun TextInput(
 @Composable
 fun loginScreenPreview() {
     WelcomeFreshmanTheme {
-        LoginScreen(onRegisterClick = { /*TODO*/ }) {
 
-        }
     }
 
 }
