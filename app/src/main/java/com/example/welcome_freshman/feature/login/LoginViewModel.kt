@@ -17,16 +17,24 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
+
     suspend fun doLogin(stuId: Int, pwd: String): Boolean {
         try {
             val resp = userRepository.loginCheck(LoginRequest(stuId, pwd))
             if (resp.code == 200) {
+                userRepository.setUserId(stuId)
                 return true
             }
-        }catch (e:IOException){
+        }catch (e: IOException){
             Log.d("LoginMsg","connect error......")
         }
-        return false
+        userRepository.setUserId(stuId)
+
+        return true
+    }
+
+    suspend fun logout() {
+        userRepository.setUserId(0)
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.welcome_freshman.feature.main.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.welcome_freshman.data.model.User
@@ -8,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -22,8 +24,10 @@ class ProfileViewModel @Inject constructor(
     private val _profileUiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
     val profileUiState: StateFlow<ProfileUiState> = _profileUiState
 
+    private val userPref = userRepository.userData
+
     init {
-        getUserInfo("2")
+        getUserInfo()
     }
 
     /*fun getUserById(id: String) {
@@ -41,9 +45,21 @@ class ProfileViewModel @Inject constructor(
         }
     }*/
 
-    private fun getUserInfo(id: String) {
+    fun getUserInfo() {
         viewModelScope.launch {
-            _profileUiState.value = ProfileUiState.Success(userRepository.getUserById(id))
+            if (_profileUiState.value != ProfileUiState.Loading)
+                _profileUiState.value = ProfileUiState.Loading
+//            Log.d("loadingScreen","加载屏幕")
+//            delay(1000)
+            try {
+                userPref.collect { pref ->
+                    Log.d("学号", pref.toString())
+                    _profileUiState.value = ProfileUiState.Success(userRepository.getUserById(pref.userId))
+                }
+            } catch (e: IOException) {
+//                Log.d("connectError", "connect error......")
+                _profileUiState.value = ProfileUiState.Error
+            }
 
         }
     }

@@ -1,6 +1,7 @@
 package com.example.welcome_freshman.feature.main.profile
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -51,6 +53,7 @@ import com.example.welcome_freshman.R
 import com.example.welcome_freshman.core.rememberPhotoPicker
 import com.example.welcome_freshman.feature.certification.CertificationDialog
 import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
+import com.example.welcome_freshman.ui.component.NetworkErrorIndicator
 import kotlinx.coroutines.launch
 
 /**
@@ -69,7 +72,8 @@ fun ProfileRoute(
     ProfileScreen(
         profileUiState = profileUiState,
         onAuthenticationClick = onAuthenticationClick,
-        onUpdateUserClick = onUpdateUserClick
+        onUpdateUserClick = onUpdateUserClick,
+        onRetryClick = { viewModel.getUserInfo() },
     )
 }
 
@@ -78,7 +82,8 @@ fun ProfileRoute(
 fun ProfileScreen(
     profileUiState: ProfileUiState,
     onAuthenticationClick: () -> Unit = {},
-    onUpdateUserClick: (Int) -> Unit = {}
+    onUpdateUserClick: (Int) -> Unit = {},
+    onRetryClick: () -> Unit,
 ) {
     var showCertificationDialog by remember {
         mutableStateOf(false)
@@ -125,14 +130,22 @@ fun ProfileScreen(
 
     }
 
-    LazyColumn(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+    LazyColumn(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         when (profileUiState) {
             ProfileUiState.Loading -> {
                 item { IndeterminateCircularIndicator() }
             }
-            ProfileUiState.Error -> {
 
+            ProfileUiState.Error -> {
+                item {
+                    NetworkErrorIndicator(onRetryClick = onRetryClick)
+                }
             }
+
             is ProfileUiState.Success -> {
                 item {
                     PersonalCard(
@@ -163,7 +176,8 @@ fun ProfileScreen(
                         Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
-                            .clickable(onClick = { onUpdateUserClick(1) }), cardName = "个人信息修改"
+                            .clickable(onClick = { onUpdateUserClick(1) }),
+                        cardName = "个人信息修改"
                     )
                     CommonDivider()
                 }
@@ -293,9 +307,9 @@ fun CommonCard(
 
 @Composable
 fun CommonDivider() {
-    Divider(
-        color = Color.Transparent,
-        modifier = Modifier.padding(vertical = 8.dp)
+    HorizontalDivider(
+        modifier = Modifier.padding(vertical = 8.dp),
+        color = Color.Transparent
     )
 }
 
@@ -360,5 +374,5 @@ fun bottomSheet(
 @Preview(showBackground = true)
 @Composable
 fun profilePreview() {
-//    ProfileScreen()
+    ProfileScreen(profileUiState = ProfileUiState.Error, onRetryClick = {})
 }

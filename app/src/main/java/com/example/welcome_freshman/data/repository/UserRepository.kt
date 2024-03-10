@@ -1,5 +1,7 @@
 package com.example.welcome_freshman.data.repository
 
+import com.example.welcome_freshman.UserPreferences
+import com.example.welcome_freshman.data.datastore.WfPreferencesDataSource
 import com.example.welcome_freshman.data.model.LoginRequest
 import com.example.welcome_freshman.data.model.User
 import com.example.welcome_freshman.data.network.NetworkResponse
@@ -8,6 +10,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -15,16 +18,29 @@ import javax.inject.Inject
  *@author GFCoder
  */
 interface UserRepository {
-    suspend fun getUserById(id: String):User
+    val userData: Flow<UserPreferences>
+
+    suspend fun setUserId(id: Int)
+
+    suspend fun getUserById(id: Int): User
 
     suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User>
 }
 
 class MainUserRepository @Inject constructor(
-    private val network: WfNetworkDataSource
+    private val network: WfNetworkDataSource,
+//    private val dataStoreManager: DataStoreManager,
+    private val preferencesDataSource: WfPreferencesDataSource
 ) : UserRepository {
-    override suspend fun getUserById(id: String):User = network.getUserById(id)
-    override suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User> = network.loginCheck(loginRequest)
+
+    override val userData: Flow<UserPreferences> = preferencesDataSource.userData
+
+    override suspend fun setUserId(id: Int) = preferencesDataSource.setUserId(id)
+
+    override suspend fun getUserById(id: Int): User = network.getUserById(id)
+
+    override suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User> =
+        network.loginCheck(loginRequest)
 
 }
 

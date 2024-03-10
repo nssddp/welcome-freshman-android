@@ -10,5 +10,8 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class WfApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
 
+    }
 }

@@ -6,6 +6,7 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+    id("com.google.protobuf") version "0.9.4"
 }
 
 android {
@@ -54,7 +55,28 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.2"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                register("java") {
+                    option("lite")
+                }
+                register("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
+
 dependencies {
+    // 为了转圈动画下载
+    implementation ("androidx.compose.material3:material3-android:1.2.0-rc01")
 
     // 为了新的滑动下载
     implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
@@ -104,6 +126,12 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
     implementation("androidx.camera:camera-view:${cameraxVersion}")
     implementation("androidx.camera:camera-extensions:${cameraxVersion}")
+
+    // datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore:1.0.0")
+    implementation("com.google.protobuf:protobuf-kotlin-lite:3.25.2")
+    implementation("com.google.protobuf:protobuf-javalite:3.25.2")
 
 
     implementation("androidx.core:core-ktx:1.12.0")

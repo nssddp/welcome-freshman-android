@@ -1,7 +1,6 @@
 package com.example.welcome_freshman.ui
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -24,8 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.navOptions
+import com.example.welcome_freshman.feature.login.LoginViewModel
+import com.example.welcome_freshman.feature.login.navigateToLoginGraph
+import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
 import com.example.welcome_freshman.mainNav.TopLevelDestination
 import com.example.welcome_freshman.mainNav.WfNavHost
 import com.example.welcome_freshman.ui.component.WfBackground
@@ -42,11 +46,25 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WfApp(appState: WfAppState = rememberWfAppState()) {
+fun WfApp(appState: WfAppState = rememberWfAppState(), startDestination: String, loginViewModel: LoginViewModel = hiltViewModel()) {
     WfBackground {
         val destination = appState.currentTopLevelDestination
 
-        WfNavigationDrawer(drawerState = appState.drawerState, gesturesEnabled = { destination != null }) {
+        WfNavigationDrawer(
+            drawerState = appState.drawerState,
+            gesturesEnabled = { destination != null },
+            onLogoutClick = {
+                appState.scope.launch {
+                    appState.drawerState.close()
+                    appState.navController.navigateToLoginGraph(navOptions {
+                        popUpTo(TASK_ROUTE) {
+                            inclusive = true
+                        }
+                    })
+                    loginViewModel.logout()
+                }
+            }
+        ) {
             val scrollBehavior =
                 TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -99,6 +117,7 @@ fun WfApp(appState: WfAppState = rememberWfAppState()) {
                         }
                         WfNavHost(
                             appState = appState,
+                            startDestination = startDestination
                         )
                     }
 

@@ -35,9 +35,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun WfNavHost(
+    modifier: Modifier = Modifier,
     appState: WfAppState,
     startDestination: String = LOGIN_GRAPH,
-    modifier: Modifier = Modifier
 ) {
     val navController = appState.navController
     NavHost(

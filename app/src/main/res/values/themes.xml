@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.Welcomefreshman" parent="android:Theme.Material.Light.NoActionBar" />
+    
+    <style name="Theme.SplashScreen.MySplash" parent="Theme.SplashScreen">
+<!--        <item name="windowSplashScreenBackground">@color/pink</item>-->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+<!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
+        <item name="postSplashScreenTheme">@style/Theme.Welcomefreshman</item>
+    </style>
 </resources>

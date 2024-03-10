@@ -27,7 +27,7 @@ import javax.inject.Singleton
 
 private interface WfNetworkApi {
     @GET("user/{id}")
-    suspend fun getUserById(@Path("id") id: String?): NetworkResponse<User>
+    suspend fun getUserById(@Path("id") id: Int?): NetworkResponse<User>
 
     @POST("user/users/stuLogin")
     suspend fun loginCheck(@Body loginRequest: LoginRequest): NetworkResponse<User>
@@ -38,10 +38,9 @@ private interface WfNetworkApi {
 }
 
 interface WfNetworkDataSource {
-    suspend fun getUserById(id: String? = null): User
+    suspend fun getUserById(id: Int? = null): User
 
     suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User>
-
 
     suspend fun getTaskById(id: String? = null): Task
 
@@ -68,7 +67,7 @@ class RetrofitWfNetwork @Inject constructor(
         .build()
         .create(WfNetworkApi::class.java)
 
-    override suspend fun getUserById(id: String?): User = networkApi.getUserById(id).data
+    override suspend fun getUserById(id: Int?): User = networkApi.getUserById(id).data
     override suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User> = networkApi.loginCheck(loginRequest)
 
     override suspend fun getTaskById(id: String?): Task = networkApi.getTaskById(id).data

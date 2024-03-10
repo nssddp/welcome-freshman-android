@@ -51,9 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.welcome_freshman.R
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.launch
-import com.example.welcome_freshman.R
 
 /**
  *@date 2024/1/27 10:40
@@ -284,10 +284,10 @@ fun TaskListItem(
                         modifier = Modifier.padding(start = 16.dp)
                     )
                     LinearProgressIndicator(
-                        progress = currentProgress,
+                        progress = { currentProgress },
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
-                            .padding(vertical = 12.dp)
+                            .padding(vertical = 12.dp),
                     )
                     Text(text = "%${progress * 100}", style = MaterialTheme.typography.labelMedium)
                 }

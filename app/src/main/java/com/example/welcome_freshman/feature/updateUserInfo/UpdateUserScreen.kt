@@ -19,11 +19,14 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -94,7 +97,7 @@ fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String
                 title = { Text(text = "修改昵称", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick(false) }) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
                     }
                 },
                 actions = {
@@ -146,7 +149,7 @@ fun UpdateUserScreen(
                 title = { Text(text = "个人资料", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
                     }
                 },
             )
@@ -232,7 +235,7 @@ fun UpdateUserScreen(
             }
 
 
-            Divider(Modifier.padding(horizontal = 8.dp), thickness = 0.8.dp)
+            HorizontalDivider(Modifier.padding(horizontal = 8.dp), thickness = 0.8.dp)
             UpdateCard(cardName = "昵称",
                 userInfo = "服了",
                 modifier = Modifier
@@ -297,7 +300,7 @@ private fun UpdateCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Icon(
-                        imageVector = Icons.Default.ArrowForwardIos,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
@@ -306,7 +309,7 @@ private fun UpdateCard(
 
             }
         }
-        Divider(Modifier.padding(horizontal = 8.dp), thickness = 0.8.dp)
+        HorizontalDivider(Modifier.padding(horizontal = 8.dp), thickness = 0.8.dp)
     }
 }
 

@@ -3,6 +3,7 @@ package com.example.welcome_freshman.ui.component
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 fun WfNavigationDrawer(
     drawerState: DrawerState,
     gesturesEnabled: () -> Boolean,
+    onLogoutClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(
@@ -27,11 +29,11 @@ fun WfNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet {
                 Text(text = "侧边栏", modifier = Modifier.padding(16.dp))
-                Divider()
+                HorizontalDivider()
                 NavigationDrawerItem(
-                    label = { Text(text = "完善中") },
+                    label = { Text(text = "退出登录") },
                     selected = false,
-                    onClick = { }
+                    onClick = onLogoutClick
                 )
             }
         }
