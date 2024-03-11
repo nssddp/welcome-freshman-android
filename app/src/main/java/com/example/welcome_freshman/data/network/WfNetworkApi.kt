@@ -32,8 +32,15 @@ private interface WfNetworkApi {
     @POST("user/users/stuLogin")
     suspend fun loginCheck(@Body loginRequest: LoginRequest): NetworkResponse<User>
 
+    @POST
+    suspend fun checkPortrait(@Body pic: String) :NetworkResponse<Boolean>
+
     @GET("task")
-    suspend fun getTaskById(@Query("id") id: String?): NetworkResponse<Task>
+    suspend fun getTasksByUserId(@Query("id") id: Int?): NetworkResponse<List<Task>>
+
+    @GET("task")
+    suspend fun getTaskDetail(@Query("userId") userId: Int?,@Query("taskId") taskId: Int?,): NetworkResponse<Task>
+
 
 }
 
@@ -42,7 +49,10 @@ interface WfNetworkDataSource {
 
     suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User>
 
-    suspend fun getTaskById(id: String? = null): Task
+    suspend fun getTasksByUserId(id: Int? = null): List<Task>
+
+    suspend fun checkPortrait(pic: String) :Boolean
+
 
 }
 
@@ -52,7 +62,6 @@ data class NetworkResponse<T>(
     val message: String, // 消息
     val data: T,
     val token: String, // 登录成功后返回的token
-
 )
 
 private const val WF_BASE_URL = "http://localhost:11000"
@@ -69,8 +78,10 @@ class RetrofitWfNetwork @Inject constructor(
 
     override suspend fun getUserById(id: Int?): User = networkApi.getUserById(id).data
     override suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User> = networkApi.loginCheck(loginRequest)
+    override suspend fun getTasksByUserId(id: Int?): List<Task> = networkApi.getTasksByUserId(id).data
+    override suspend fun checkPortrait(pic: String): Boolean = networkApi.checkPortrait(pic).data
 
-    override suspend fun getTaskById(id: String?): Task = networkApi.getTaskById(id).data
+
 }
 
 @Module

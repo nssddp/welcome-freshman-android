@@ -18,6 +18,9 @@ data class Task(
 
     @SerialName("task_type")
     val taskType: String,
+
+    @SerialName("task_value")
+    val taskValue: Int,
     /**
      * 任务描述
      */
@@ -26,7 +29,7 @@ data class Task(
      * 剩余时间
      */
     @SerialName("rest_time")
-    val restTime: String,
+    val validTime: String,
 
     val progress: Int,
 

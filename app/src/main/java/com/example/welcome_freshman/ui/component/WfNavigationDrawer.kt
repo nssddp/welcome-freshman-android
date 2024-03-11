@@ -21,6 +21,7 @@ fun WfNavigationDrawer(
     drawerState: DrawerState,
     gesturesEnabled: () -> Boolean,
     onLogoutClick: () -> Unit,
+    onCheckClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(
@@ -35,6 +36,12 @@ fun WfNavigationDrawer(
                     selected = false,
                     onClick = onLogoutClick
                 )
+                NavigationDrawerItem(
+                    label = { Text(text = "身份认证") },
+                    selected = false,
+                    onClick = onCheckClick
+                )
+
             }
         }
     ) {

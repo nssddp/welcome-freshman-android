@@ -11,6 +11,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
+import org.json.JSONObject
 import javax.inject.Inject
 
 /**
@@ -25,6 +26,9 @@ interface UserRepository {
     suspend fun getUserById(id: Int): User
 
     suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User>
+
+    suspend fun checkPortrait(pic: String): Boolean
+
 }
 
 class MainUserRepository @Inject constructor(
@@ -42,11 +46,12 @@ class MainUserRepository @Inject constructor(
     override suspend fun loginCheck(loginRequest: LoginRequest): NetworkResponse<User> =
         network.loginCheck(loginRequest)
 
+    override suspend fun checkPortrait(pic: String): Boolean {
+        /*val jsonObject = JSONObject()
+        jsonObject.put("imageBase64", pic)*/
+        return network.checkPortrait(pic)
+    }
+
+
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-interface WfNetworkModule {
-    @Binds
-    fun bindsUserRepository(impl: MainUserRepository): UserRepository
-}

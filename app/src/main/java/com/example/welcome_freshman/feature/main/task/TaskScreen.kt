@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +52,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.data.model.Task
+import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
+import com.example.welcome_freshman.ui.component.NetworkErrorIndicator
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.launch
 
@@ -61,12 +66,18 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun TaskRoute(onDetailClick: (String) -> Unit = {}) {
-    TaskScreen(onDetailClick = onDetailClick)
+fun TaskRoute(onDetailClick: (String) -> Unit = {}, viewModel: TaskViewModel = hiltViewModel()) {
+    val uiState by viewModel.taskUiState.collectAsState()
+
+    TaskScreen(onDetailClick = onDetailClick, uiState = uiState)
 }
 
 @Composable
-fun TaskScreen(onDetailClick: (String) -> Unit = {}) {
+fun TaskScreen(onDetailClick: (String) -> Unit = {}, uiState: TaskUiState?) {
+    var tasks: List<Task> by remember {
+        mutableStateOf(emptyList())
+    }
+
 
     val sampleData by remember {
         mutableStateOf(getSampleData(80))
@@ -80,6 +91,9 @@ fun TaskScreen(onDetailClick: (String) -> Unit = {}) {
     var otherSelected by rememberSaveable {
         mutableStateOf(false)
     }
+    var filterType by remember {
+        mutableStateOf(0)
+    }
 
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -90,7 +104,8 @@ fun TaskScreen(onDetailClick: (String) -> Unit = {}) {
     LazyColumn(
         Modifier.fillMaxSize(),
         state = listState,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         item {
@@ -99,54 +114,95 @@ fun TaskScreen(onDetailClick: (String) -> Unit = {}) {
                 Modifier
                     .fillMaxWidth()
                     .height(180.dp)
-                    .padding(horizontal = 16.dp))
+                    .padding(horizontal = 16.dp)
+            )
         }
-        item {
-            TaskSection(title = R.string.today_task_title) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TaskFilterChip(chipName = "全部", selected = { allSelected }) {
-                        if (!allSelected) {
-                            allSelected = true
-                            if (mainSelected) mainSelected = false
-                            if (otherSelected) otherSelected = false
-                        }
 
-                    }
-                    TaskFilterChip(chipName = "主线任务", selected = { mainSelected }) {
-                        if (!mainSelected) {
-                            mainSelected = true
-                            if (allSelected) allSelected = false
-                            if (otherSelected) otherSelected = false
-                        }
-
-                    }
-
-                    TaskFilterChip(chipName = "支线任务", selected = { otherSelected }) {
-                        if (!otherSelected) {
-                            otherSelected = true
-                            if (mainSelected) mainSelected = false
-                            if (allSelected) allSelected = false
-                        }
-
-                    }
+        when (uiState) {
+            TaskUiState.Loading -> {
+                item {
+                    Spacer(modifier = Modifier.height(100.dp))
+                    IndeterminateCircularIndicator()
                 }
             }
 
+            is TaskUiState.Success -> {
+                item {
+                    TaskSection(title = R.string.today_task_title) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            TaskFilterChip(chipName = "全部", selected = { allSelected }) {
+                                if (!allSelected) {
+                                    allSelected = true
+                                    filterType = 0
+                                    if (mainSelected) mainSelected = false
+                                    if (otherSelected) otherSelected = false
+                                }
+
+                            }
+                            TaskFilterChip(chipName = "主线任务", selected = { mainSelected }) {
+                                if (!mainSelected) {
+                                    mainSelected = true
+                                    filterType = 1
+                                    if (allSelected) allSelected = false
+                                    if (otherSelected) otherSelected = false
+                                }
+
+                            }
+
+                            TaskFilterChip(chipName = "支线任务", selected = { otherSelected }) {
+                                if (!otherSelected) {
+                                    otherSelected = true
+                                    filterType = 2
+                                    if (mainSelected) mainSelected = false
+                                    if (allSelected) allSelected = false
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                scope.launch {
+                    when (filterType) {
+                        0 -> tasks = uiState.tasks
+
+                        1 -> tasks = uiState.tasks.filter { task ->
+                            task.taskType == "全部任务"
+                        }
+
+                        2 -> tasks = uiState.tasks.filter { task ->
+                            task.taskType == "支线任务"
+                        }
+                    }
+                }
+
+                items(items = tasks, key = { task ->
+                    task.taskId
+                }) { task ->
+                    TaskListItem(
+                        task = task,
+                        /*task.taskName,
+                        task.taskType,
+                        task.validTime,
+                        task.description,*/
+                        onDetailClick = onDetailClick
+                    )
+                }
+            }
+
+            else -> {
+                item {
+                    Spacer(modifier = Modifier.height(100.dp))
+                    NetworkErrorIndicator(onRetryClick = { })
+                }
+            }
         }
-        items(sampleData) {
-            TaskListItem(
-                "一个good任务",
-                "主线任务",
-                "剩余12小时",
-                "任务描述: $it",
-                onDetailClick = onDetailClick
-            )
-        }
+
         item { Spacer(modifier = Modifier.height(8.dp)) }
 
     }
@@ -192,10 +248,7 @@ fun TaskFilterChip(chipName: String, selected: () -> Boolean, onClick: () -> Uni
 
 @Composable
 fun TaskListItem(
-    taskTitle: String,
-    taskType: String,
-    validTime: String,
-    content: String,
+    task: Task,
     progress: Float = 0.7f,
     onDetailClick: (String) -> Unit = {},
 ) {
@@ -226,7 +279,7 @@ fun TaskListItem(
                     // 左边部分
                     Column(Modifier.fillMaxWidth(0.7f)) {
                         Text(
-                            text = taskTitle,
+                            text = task.taskName,
                             style = MaterialTheme.typography.bodyLarge,
                             overflow = TextOverflow.Ellipsis,
                             fontWeight = FontWeight.Bold,
@@ -246,7 +299,7 @@ fun TaskListItem(
                             maxLines = 1,
                         )*/
                         Text(
-                            text = content,
+                            text = task.description,
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             overflow = TextOverflow.Ellipsis,
@@ -256,15 +309,15 @@ fun TaskListItem(
                         )
                     }
                     // 右边部分
-                    Column{
+                    Column {
                         Text(
-                            text = validTime,
+                            text = task.validTime,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 16.dp, end = 12.dp)
                         )
                         Text(
-                            text = "价值:12积分",
+                            text = "价值:${task.taskValue}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 16.dp, end = 12.dp)
@@ -297,7 +350,7 @@ fun TaskListItem(
         }
 
         TaskType(
-            taskType = taskType, modifier = Modifier
+            taskType = task.taskType, modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = 8.dp)
         )
@@ -344,7 +397,7 @@ fun TaskSection(
 @Composable
 fun HomeMainCard(modifier: Modifier) {
     OutlinedCard(modifier) {
-        Text(text = "早上好，GGBone!",Modifier.padding(start = 8.dp, top = 8.dp))
+        Text(text = "早上好，GGBone!", Modifier.padding(start = 8.dp, top = 8.dp))
     }
 }
 
@@ -364,7 +417,7 @@ fun taskItem() {
             taskType = "主线任务"
         )*/
 
-        TaskScreen()
+        TaskScreen(uiState = null)
     }
 
 }

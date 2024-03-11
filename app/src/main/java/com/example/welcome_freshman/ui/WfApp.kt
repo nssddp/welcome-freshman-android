@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.navOptions
+import com.example.welcome_freshman.feature.certification.navigateToCamera
 import com.example.welcome_freshman.feature.login.LoginViewModel
 import com.example.welcome_freshman.feature.login.navigateToLoginGraph
 import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
@@ -62,6 +63,12 @@ fun WfApp(appState: WfAppState = rememberWfAppState(), startDestination: String,
                         }
                     })
                     loginViewModel.logout()
+                }
+            },
+            onCheckClick = {
+                appState.scope.launch {
+                    appState.drawerState.close()
+                    appState.navController.navigateToCamera()
                 }
             }
         ) {
