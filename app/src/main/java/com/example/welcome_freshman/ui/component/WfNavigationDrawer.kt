@@ -31,15 +31,16 @@ fun WfNavigationDrawer(
             ModalDrawerSheet {
                 Text(text = "侧边栏", modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text(text = "退出登录") },
-                    selected = false,
-                    onClick = onLogoutClick
-                )
+
                 NavigationDrawerItem(
                     label = { Text(text = "身份认证") },
                     selected = false,
                     onClick = onCheckClick
+                )
+                NavigationDrawerItem(
+                    label = { Text(text = "退出登录") },
+                    selected = false,
+                    onClick = onLogoutClick
                 )
 
             }

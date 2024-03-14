@@ -2,6 +2,9 @@ package com.example.welcome_freshman.feature.main.task
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.rounded.ArrowUpward
@@ -34,7 +38,11 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -45,54 +53,69 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.welcome_freshman.R
-import com.example.welcome_freshman.data.model.Task
+import com.example.welcome_freshman.core.data.model.Task
 import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
 import com.example.welcome_freshman.ui.component.NetworkErrorIndicator
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /**
  *@date 2024/1/27 10:40
  *@author GFCoder
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskRoute(onDetailClick: (String) -> Unit = {}, viewModel: TaskViewModel = hiltViewModel()) {
     val uiState by viewModel.taskUiState.collectAsState()
 
-    TaskScreen(onDetailClick = onDetailClick, uiState = uiState)
+    val refreshState = rememberPullToRefreshState()
+
+    TaskScreen(
+        onDetailClick = onDetailClick,
+        uiState = uiState,
+        refreshState = refreshState,
+        getTasks = viewModel::getTasks
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun TaskScreen(onDetailClick: (String) -> Unit = {}, uiState: TaskUiState?) {
+fun TaskScreen(
+    onDetailClick: (String) -> Unit = {},
+    uiState: TaskUiState,
+    refreshState: PullToRefreshState,
+    getTasks: () -> Unit,
+) {
     var tasks: List<Task> by remember {
         mutableStateOf(emptyList())
     }
-
-
     val sampleData by remember {
         mutableStateOf(getSampleData(80))
     }
-    var allSelected by rememberSaveable {
-        mutableStateOf(true)
-    }
-    var mainSelected by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var otherSelected by rememberSaveable {
-        mutableStateOf(false)
-    }
+
     var filterType by remember {
         mutableStateOf(0)
+    }
+
+    if (refreshState.isRefreshing) {
+        LaunchedEffect(true) { getTasks() }
     }
 
     val listState = rememberLazyListState()
@@ -100,117 +123,137 @@ fun TaskScreen(onDetailClick: (String) -> Unit = {}, uiState: TaskUiState?) {
     val showButton by remember {
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
-
-    LazyColumn(
-        Modifier.fillMaxSize(),
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(refreshState.nestedScrollConnection),
+        contentAlignment = Alignment.Center
     ) {
 
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            HomeMainCard(
-                Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .padding(horizontal = 16.dp)
-            )
-        }
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        when (uiState) {
-            TaskUiState.Loading -> {
-                item {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    IndeterminateCircularIndicator()
-                }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                HomeMainCard(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .padding(horizontal = 16.dp)
+                )
             }
+            item {
+                Box {
+                    val offset by remember {
+                        derivedStateOf { refreshState.verticalOffset > 0.0f }
+                    }
+                    val alpha by animateFloatAsState(
+                        targetValue = if (offset) 1.0f else 0.0f,
+                        label = "",
+                        animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing)
+                    )
 
-            is TaskUiState.Success -> {
-                item {
                     TaskSection(title = R.string.today_task_title) {
+                        val filterChipOptions = listOf("全部", "主线任务", "支线任务")
+                        var selectedFilterChip by rememberSaveable {
+                            mutableStateOf(filterChipOptions[0])
+                        }
                         Row(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            TaskFilterChip(chipName = "全部", selected = { allSelected }) {
-                                if (!allSelected) {
-                                    allSelected = true
-                                    filterType = 0
-                                    if (mainSelected) mainSelected = false
-                                    if (otherSelected) otherSelected = false
-                                }
+                            filterChipOptions.fastForEachIndexed { index, chipName ->
+                                TaskFilterChip(
+                                    chipName = chipName,
+                                    selected = { selectedFilterChip == chipName }) {
+                                    selectedFilterChip = chipName
+                                    filterType = index
 
-                            }
-                            TaskFilterChip(chipName = "主线任务", selected = { mainSelected }) {
-                                if (!mainSelected) {
-                                    mainSelected = true
-                                    filterType = 1
-                                    if (allSelected) allSelected = false
-                                    if (otherSelected) otherSelected = false
                                 }
 
                             }
 
-                            TaskFilterChip(chipName = "支线任务", selected = { otherSelected }) {
-                                if (!otherSelected) {
-                                    otherSelected = true
-                                    filterType = 2
-                                    if (mainSelected) mainSelected = false
-                                    if (allSelected) allSelected = false
-                                }
-
-                            }
                         }
+
                     }
-
-                }
-                scope.launch {
-                    when (filterType) {
-                        0 -> tasks = uiState.tasks
-
-                        1 -> tasks = uiState.tasks.filter { task ->
-                            task.taskType == "全部任务"
-                        }
-
-                        2 -> tasks = uiState.tasks.filter { task ->
-                            task.taskType == "支线任务"
-                        }
-                    }
-                }
-
-                items(items = tasks, key = { task ->
-                    task.taskId
-                }) { task ->
-                    TaskListItem(
-                        task = task,
-                        /*task.taskName,
-                        task.taskType,
-                        task.validTime,
-                        task.description,*/
-                        onDetailClick = onDetailClick
+                    PullToRefreshContainer(
+                        state = refreshState,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 80.dp)
+                            .alpha(alpha),
                     )
+
                 }
             }
 
-            else -> {
-                item {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    NetworkErrorIndicator(onRetryClick = { })
+            when (uiState) {
+                TaskUiState.Loading -> {
+                    if (!refreshState.isRefreshing) {
+                        refreshState.startRefresh()
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(100.dp))
+                        IndeterminateCircularIndicator()
+                    }
+                }
+
+                is TaskUiState.Success -> {
+                    refreshState.endRefresh()
+                    scope.launch {
+                        when (filterType) {
+                            0 -> tasks = uiState.tasks
+
+                            1 -> tasks = uiState.tasks.filter { task ->
+                                task.taskType == "主线任务"
+                            }
+
+                            2 -> tasks = uiState.tasks.filter { task ->
+                                task.taskType == "支线任务"
+                            }
+                        }
+                    }
+
+                    items(items = tasks, key = { task ->
+                        task.taskId
+                    }) { task ->
+                        TaskListItem(
+                            task = task,
+                            /*task.taskName,
+                            task.taskType,
+                            task.validTime,
+                            task.description,*/
+                            onDetailClick = onDetailClick
+                        )
+                    }
+                }
+
+                else -> {
+                    refreshState.endRefresh()
+                    item {
+                        Spacer(modifier = Modifier.height(100.dp))
+                        NetworkErrorIndicator(onRetryClick = { getTasks() })
+                    }
                 }
             }
+
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+
         }
+        // 返回顶部button
 
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-
-    }
-    // 返回顶部button
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         AnimatedVisibility(showButton) {
             IconButton(
-                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp),
+                modifier = Modifier
+                    .padding(bottom = 16.dp, end = 16.dp)
+                    .align(Alignment.BottomEnd),
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.secondary
@@ -226,7 +269,6 @@ fun TaskScreen(onDetailClick: (String) -> Unit = {}, uiState: TaskUiState?) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskFilterChip(chipName: String, selected: () -> Boolean, onClick: () -> Unit) {
     FilterChip(
@@ -396,8 +438,34 @@ fun TaskSection(
 
 @Composable
 fun HomeMainCard(modifier: Modifier) {
+    val currentTime = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy年M月dd日 EEEE", Locale.CHINA)
+    var formatted by remember {
+        mutableStateOf(currentTime.format(formatter))
+    }
+    LaunchedEffect(key1 = true, block = {
+        while (true) {
+            val newDate = LocalDate.now().format(formatter)
+
+            if (formatted != newDate) formatted = newDate
+
+            delay(7200_000)
+        }
+    })
+
+
     OutlinedCard(modifier) {
-        Text(text = "早上好，GGBone!", Modifier.padding(start = 8.dp, top = 8.dp))
+        Text(
+            text = formatted,
+            Modifier.padding(start = 8.dp, top = 8.dp),
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Text(
+            text = "早上好，GGBone!",
+            Modifier.padding(start = 8.dp, top = 8.dp),
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
 
@@ -406,6 +474,7 @@ fun getSampleData(size: Int): List<String> {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun taskItem() {
@@ -417,7 +486,7 @@ fun taskItem() {
             taskType = "主线任务"
         )*/
 
-        TaskScreen(uiState = null)
+//        TaskScreen(uiState = null, refreshState = null)
     }
 
 }

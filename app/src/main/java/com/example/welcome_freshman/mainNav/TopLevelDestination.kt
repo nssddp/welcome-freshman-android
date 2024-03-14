@@ -27,7 +27,7 @@ enum class TopLevelDestination(
         iconText = "任务",
         titleTextId = R.string.task_title,
     ),
-    LIST(
+    RANK(
         selectedIcon = Icons.Filled.BarChart,
         unselectedIcon = Icons.Outlined.BarChart,
         iconText = "排行榜",

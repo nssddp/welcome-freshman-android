@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.data.network.di
+package com.example.welcome_freshman.core.data.network.di
 
 import androidx.compose.ui.util.trace
 import dagger.Module

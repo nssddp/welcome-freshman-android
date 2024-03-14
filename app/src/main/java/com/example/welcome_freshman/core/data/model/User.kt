@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.data.model
+package com.example.welcome_freshman.core.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -38,6 +38,6 @@ data class User(
 
 @Serializable
 data class LoginRequest(
-    val stuId: Int,
+    val studentNumber: Int,
     val password: String,
 )

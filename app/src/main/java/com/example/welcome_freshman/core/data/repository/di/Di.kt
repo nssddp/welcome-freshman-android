@@ -1,9 +1,9 @@
-package com.example.welcome_freshman.data.repository.di
+package com.example.welcome_freshman.core.data.repository.di
 
-import com.example.welcome_freshman.data.repository.MainTaskRepository
-import com.example.welcome_freshman.data.repository.MainUserRepository
-import com.example.welcome_freshman.data.repository.TaskRepository
-import com.example.welcome_freshman.data.repository.UserRepository
+import com.example.welcome_freshman.core.data.repository.MainTaskRepository
+import com.example.welcome_freshman.core.data.repository.MainUserRepository
+import com.example.welcome_freshman.core.data.repository.TaskRepository
+import com.example.welcome_freshman.core.data.repository.UserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

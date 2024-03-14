@@ -1,11 +1,11 @@
-package com.example.welcome_freshman.data.datastore.di
+package com.example.welcome_freshman.core.data.datastore.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import com.example.welcome_freshman.UserPreferences
-import com.example.welcome_freshman.data.datastore.UserPreferencesSerializer
+import com.example.welcome_freshman.core.data.datastore.UserPreferencesSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

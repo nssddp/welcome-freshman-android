@@ -12,4 +12,7 @@
     <string name="task_completed_title">已完成</string>
     <string name="task_name_title">任务名称</string>
     <string name="task_describe_title">任务描述</string>
+
+    <string name="core_notifications_tasks_notification_channel_name">tasks reminder</string>
+    <string name="core_notifications_tasks_notification_channel_description">remind stu to complete task when reach task location</string>
 </resources>

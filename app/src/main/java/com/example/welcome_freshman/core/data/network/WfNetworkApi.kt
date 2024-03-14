@@ -1,8 +1,8 @@
-package com.example.welcome_freshman.data.network
+package com.example.welcome_freshman.core.data.network
 
-import com.example.welcome_freshman.data.model.LoginRequest
-import com.example.welcome_freshman.data.model.Task
-import com.example.welcome_freshman.data.model.User
+import com.example.welcome_freshman.core.data.model.LoginRequest
+import com.example.welcome_freshman.core.data.model.Task
+import com.example.welcome_freshman.core.data.model.User
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Binds
 import dagger.Module
@@ -33,7 +33,7 @@ private interface WfNetworkApi {
     suspend fun loginCheck(@Body loginRequest: LoginRequest): NetworkResponse<User>
 
     @POST
-    suspend fun checkPortrait(@Body pic: String) :NetworkResponse<Boolean>
+    suspend fun checkPortrait(@Body pic: String) : NetworkResponse<Boolean>
 
     @GET("task")
     suspend fun getTasksByUserId(@Query("id") id: Int?): NetworkResponse<List<Task>>
@@ -58,10 +58,10 @@ interface WfNetworkDataSource {
 
 @Serializable
 data class NetworkResponse<T>(
+    val msg: String, // 消息
     val code: Int, // 状态码
-    val message: String, // 消息
     val data: T,
-    val token: String, // 登录成功后返回的token
+//    val token: String, // 登录成功后返回的token
 )
 
 private const val WF_BASE_URL = "http://localhost:11000"

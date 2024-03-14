@@ -1,11 +1,11 @@
-package com.example.welcome_freshman.data.repository
+package com.example.welcome_freshman.core.data.repository
 
 import com.example.welcome_freshman.UserPreferences
-import com.example.welcome_freshman.data.datastore.WfPreferencesDataSource
-import com.example.welcome_freshman.data.model.LoginRequest
-import com.example.welcome_freshman.data.model.User
-import com.example.welcome_freshman.data.network.NetworkResponse
-import com.example.welcome_freshman.data.network.WfNetworkDataSource
+import com.example.welcome_freshman.core.data.datastore.WfPreferencesDataSource
+import com.example.welcome_freshman.core.data.model.LoginRequest
+import com.example.welcome_freshman.core.data.model.User
+import com.example.welcome_freshman.core.data.network.NetworkResponse
+import com.example.welcome_freshman.core.data.network.WfNetworkDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

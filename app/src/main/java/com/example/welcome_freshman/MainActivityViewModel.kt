@@ -2,7 +2,7 @@ package com.example.welcome_freshman
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.welcome_freshman.data.repository.UserRepository
+import com.example.welcome_freshman.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

@@ -1,7 +1,6 @@
 package com.example.welcome_freshman.feature.main.profile
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -32,6 +31,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,9 +51,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.core.rememberPhotoPicker
+import com.example.welcome_freshman.core.data.model.User
 import com.example.welcome_freshman.feature.certification.CertificationDialog
-import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
-import com.example.welcome_freshman.ui.component.NetworkErrorIndicator
 import kotlinx.coroutines.launch
 
 /**
@@ -129,67 +128,74 @@ fun ProfileScreen(
         )
 
     }
+    var userName by remember {
+        mutableStateOf("NA")
+    }
+    var academy by remember {
+        mutableStateOf("NA")
+    }
 
     LazyColumn(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+//        verticalArrangement = Arrangement.
     ) {
+
         when (profileUiState) {
             ProfileUiState.Loading -> {
-                item { IndeterminateCircularIndicator() }
+//                item { IndeterminateCircularIndicator() }
             }
 
             ProfileUiState.Error -> {
-                item {
-                    NetworkErrorIndicator(onRetryClick = onRetryClick)
-                }
+//                item { NetworkErrorIndicator(onRetryClick = onRetryClick) }
             }
 
             is ProfileUiState.Success -> {
-                item {
-                    PersonalCard(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .height(175.dp),
-                        nickName = profileUiState.user.userName,
-                        department = profileUiState.user.academy,
-                        selectedImageUri = selectedImageUri,
-                        onAvatarClick = { showBottomSheet = true }
-                    )
-                    CommonDivider()
-                }
-
-                item {
-                    CommonCard(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clickable(onClick = { showCertificationDialog = true }),
-                        cardName = "学生认证"
-                    )
-                    CommonDivider()
-                }
-                item {
-                    CommonCard(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clickable(onClick = { onUpdateUserClick(1) }),
-                        cardName = "个人信息修改"
-                    )
-                    CommonDivider()
-                }
-                item {
-                    CommonCard(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp), cardName = "积分商城"
-                    )
-                    CommonDivider()
-                }
+                userName = profileUiState.user.userName
+                academy = profileUiState.user.academy
             }
+        }
+        item {
+            PersonalCard(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(175.dp),
+                nickName = userName,
+                department = academy,
+                selectedImageUri = selectedImageUri,
+                onAvatarClick = { showBottomSheet = true }
+            )
+            CommonDivider()
+        }
+
+        item {
+            CommonCard(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clickable(onClick = { showCertificationDialog = true }),
+                cardName = "学生认证"
+            )
+            CommonDivider()
+        }
+        item {
+            CommonCard(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clickable(onClick = { onUpdateUserClick(1) }),
+                cardName = "个人信息修改"
+            )
+            CommonDivider()
+        }
+        item {
+            CommonCard(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp), cardName = "积分商城"
+            )
+            CommonDivider()
         }
 
 
@@ -200,8 +206,8 @@ fun ProfileScreen(
 @Composable
 fun PersonalCard(
     modifier: Modifier = Modifier,
-    nickName: String,
-    department: String,
+    nickName: String = "NA",
+    department: String = "NA",
     selectedImageUri: Uri?,
     onAvatarClick: () -> Unit,
 ) {
@@ -256,7 +262,7 @@ fun PersonalCard(
                     Text(text = "30", style = MaterialTheme.typography.bodyMedium)
                     Text(text = "积分", style = MaterialTheme.typography.bodyMedium)
                 }
-                Divider(
+                VerticalDivider(
                     modifier = Modifier
                         .fillMaxHeight(0.3f)
                         .width(1.dp)
@@ -265,7 +271,7 @@ fun PersonalCard(
                     Text(text = "30", style = MaterialTheme.typography.bodyMedium)
                     Text(text = "等级", style = MaterialTheme.typography.bodyMedium)
                 }
-                Divider(
+                VerticalDivider(
                     modifier = Modifier
                         .fillMaxHeight(0.3f)
                         .width(1.dp)
@@ -346,7 +352,14 @@ fun bottomSheet(
                 Text("view avatar")
             }
             Divider()
-            TextButton(onClick = onSelectAvatarClick, Modifier.fillMaxWidth()) {
+            TextButton(onClick = {
+                onSelectAvatarClick()
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showBottomSheet(false)
+                    }
+                }
+            }, Modifier.fillMaxWidth()) {
                 Text("change avatar")
             }
             Divider()
@@ -374,5 +387,7 @@ fun bottomSheet(
 @Preview(showBackground = true)
 @Composable
 fun profilePreview() {
-    ProfileScreen(profileUiState = ProfileUiState.Error, onRetryClick = {})
+    ProfileScreen(
+        profileUiState = ProfileUiState.Success(User(1, "1", "1", "1", 1, 1, "1")),
+        onRetryClick = {})
 }

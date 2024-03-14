@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.data.datastore
+package com.example.welcome_freshman.core.data.datastore
 
 import android.content.Context
 import android.provider.Settings

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -28,12 +29,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.feature.main.task.TaskSection
 import com.example.welcome_freshman.ui.component.AnimatedCircle
@@ -57,20 +61,22 @@ import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
  */
 
 @Composable
-fun DetailRoute(onBackClick: () -> Unit, onAccomplishClick: (String) -> Unit) {
+fun DetailRoute(onBackClick: () -> Unit, onAccomplishClick: (String) -> Unit,viewModel: DetailViewModel = hiltViewModel()) {
+
     DetailScreen(onBackClick = onBackClick, onAccomplishClick = onAccomplishClick)
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(onBackClick: () -> Unit = {}, onAccomplishClick: (String) -> Unit = {}) {
+fun DetailScreen(onBackClick: () -> Unit = {}, onAccomplishClick: (String) -> Unit = {},) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "任务详情", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
                     }
                 },
             )
@@ -149,7 +155,10 @@ fun DetailScreen(onBackClick: () -> Unit = {}, onAccomplishClick: (String) -> Un
                     content = ""
                 )
             }
-            Divider(color = Color.Transparent, modifier = Modifier.padding(vertical = 12.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = Color.Transparent
+            )
             /*Button(onClick = { onAccomplishClick("1") }) {
                 Text(text = "go to completedScreen")
             }*/
@@ -170,12 +179,12 @@ fun TaskDetailSection(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Divider(
+            VerticalDivider(
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .height(24.dp)
-                    .width(3.dp),
-                color = MaterialTheme.colorScheme.primary
+                    .height(24.dp),
+                color = MaterialTheme.colorScheme.primary,
+                thickness = 3.dp
             )
             Text(
                 stringResource(title),
@@ -256,7 +265,7 @@ fun SubTaskCard(
                     Text(text = "地点: 第四教学楼", style = MaterialTheme.typography.labelLarge)
                 }
             }
-            Divider(Modifier.padding(bottom = 8.dp))
+            HorizontalDivider(Modifier.padding(bottom = 8.dp))
             Text(
                 text = if (isTaskCompleted()) "恭喜，任务已完成！" else "这是一个到指定地点打卡的任务啊啊啊啊".repeat(
                     20

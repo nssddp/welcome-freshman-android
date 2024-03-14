@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -53,6 +55,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.ui.component.LoadingDialog
+import com.example.welcome_freshman.ui.component.WfDialog
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.launch
 
@@ -88,16 +92,20 @@ fun LoginRoute(
     }*/
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+    if (uiState == LoginUiState.Loading) LoadingDialog()
 
     LoginScreen(
         onRegisterClick = onRegisterClick,
         onLoginClick = { stuId, pwd ->
             scope.launch {
                 if (stuId.isNotBlank() && pwd.isNotBlank()) {
-                    if (viewModel.doLogin(stuId.toInt(), pwd)) {
+                    val loginResponse = viewModel.doLogin(stuId.toInt(), pwd)
+
+                    if (loginResponse.first) {
                         onLoginClick()
                     } else {
-                        context.doLogin("账号或密码输入错误，请重试!")
+                        context.doLogin(loginResponse.second)
                     }
                 } else {
                     context.doLogin("账号或密码为空!")
@@ -181,7 +189,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: (stuId: String, pwd: 
         TextInput(
             InputType.StuId,
             keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
-            valueChange = { stuId = it },
+            valueChange = {if (it.isDigitsOnly())  stuId = it },
             showValue = { stuId }
         )
         TextInput(
@@ -191,7 +199,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: (stuId: String, pwd: 
                 onLoginClick(stuId, password)
             }),
             focusRequest = passwordFocusRequester,
-            valueChange = { password = it },
+            valueChange = {if (!it.contains(' ') ) password = it },
             showValue = { password }
         )
         Button(
@@ -249,7 +257,9 @@ fun TextInput(
 
     OutlinedTextField(
         value = showValue(),
-        onValueChange = { valueChange(it) },
+        onValueChange = {
+            valueChange(it)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(focusRequester = focusRequest ?: FocusRequester()),

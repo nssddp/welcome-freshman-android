@@ -1,4 +1,4 @@
-package com.example.welcome_freshman.data.model
+package com.example.welcome_freshman.core.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

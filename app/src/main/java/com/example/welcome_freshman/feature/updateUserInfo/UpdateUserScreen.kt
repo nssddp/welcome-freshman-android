@@ -21,10 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Brush
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -97,7 +94,10 @@ fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String
                 title = { Text(text = "修改昵称", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick(false) }) {
-                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = null
+                        )
                     }
                 },
                 actions = {
@@ -134,7 +134,7 @@ fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String
 @Preview
 @Composable
 fun UpdateNameScreenPreview() {
-    UpdateNameScreen(){""}
+    UpdateNameScreen() { "" }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -149,7 +149,10 @@ fun UpdateUserScreen(
                 title = { Text(text = "个人资料", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = null
+                        )
                     }
                 },
             )
@@ -164,7 +167,9 @@ fun UpdateUserScreen(
                     selectedImageUri = uri
                 }
             })
+
             val sheetState = rememberModalBottomSheetState()
+
             // 性别选择
             var showGenderBottomSheet by remember { mutableStateOf(false) }
             var selectedGender by remember {
@@ -222,15 +227,15 @@ fun UpdateUserScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .padding(start = 75.dp, bottom = 20.dp)
-                        .align(Alignment.BottomCenter)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .size(25.dp)
                         .shadow(
-                            elevation = 0.6.dp,
-                            shape = CircleShape, // Specify the shape of the shadow
-                            clip = false
+                            elevation = 3.dp,
+                            shape = CircleShape,
+                            clip = true
                         )
+                        .align(Alignment.BottomCenter)
+                        .background(Color.White)
+                        .size(24.dp)
+
                 )
             }
 

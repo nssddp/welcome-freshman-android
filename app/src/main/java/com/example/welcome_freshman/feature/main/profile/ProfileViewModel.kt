@@ -3,13 +3,12 @@ package com.example.welcome_freshman.feature.main.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.welcome_freshman.data.model.User
-import com.example.welcome_freshman.data.repository.UserRepository
+import com.example.welcome_freshman.core.data.model.User
+import com.example.welcome_freshman.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -54,10 +53,11 @@ class ProfileViewModel @Inject constructor(
             try {
                 userPref.collect { pref ->
                     Log.d("学号", pref.toString())
-                    _profileUiState.value = ProfileUiState.Success(userRepository.getUserById(pref.userId))
+                    _profileUiState.value =
+                        ProfileUiState.Success(userRepository.getUserById(pref.userId))
                 }
-            } catch (e: IOException) {
-//                Log.d("connectError", "connect error......")
+            } catch (e: Exception) {
+                Log.e("connectError", "connect error......", e)
                 _profileUiState.value = ProfileUiState.Error
             }
 
