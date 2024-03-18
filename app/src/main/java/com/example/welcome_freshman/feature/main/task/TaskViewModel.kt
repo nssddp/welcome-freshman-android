@@ -36,7 +36,7 @@ class TaskViewModel @Inject constructor(
                 _taskUiState.value = TaskUiState.Loading
                 delay(3000)
                 val tasks = taskRepository.getTasksByUserId(userRepository.userData.first().userId)
-                if (tasks.isNotEmpty()) {
+                if (tasks != null) {
                     _taskUiState.value = TaskUiState.Success(tasks)
                 }
             } catch (e: Exception) {

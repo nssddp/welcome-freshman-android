@@ -1,5 +1,7 @@
 package com.example.welcome_freshman.ui
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,13 +21,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -57,7 +58,7 @@ fun WfApp(
 ) {
     WfBackground {
         val destination = appState.currentTopLevelDestination
-
+        val context = LocalContext.current
         WfNavigationDrawer(
             drawerState = appState.drawerState,
             gesturesEnabled = { destination != null },
@@ -74,8 +75,13 @@ fun WfApp(
             },
             onCheckClick = {
                 appState.scope.launch {
-                    appState.drawerState.close()
-                    appState.navController.navigateToCamera()
+                    if (!loginViewModel.checkIsValid()) {
+                        appState.drawerState.close()
+                        appState.navController.navigateToCamera()
+                    } else {
+                        context.validToast()
+                    }
+
                 }
             }
         ) {
@@ -152,6 +158,14 @@ fun WfApp(
 
     }
 
+}
+
+fun Context.validToast() {
+    Toast.makeText(
+        this,
+        "已验证",
+        Toast.LENGTH_SHORT
+    ).show()
 }
 
 

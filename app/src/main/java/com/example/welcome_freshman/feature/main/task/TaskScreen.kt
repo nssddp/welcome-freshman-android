@@ -2,9 +2,6 @@ package com.example.welcome_freshman.feature.main.task
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,7 +35,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -53,9 +49,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,6 +62,7 @@ import com.example.welcome_freshman.R
 import com.example.welcome_freshman.core.data.model.Task
 import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
 import com.example.welcome_freshman.ui.component.NetworkErrorIndicator
+import com.example.welcome_freshman.ui.component.PullToReFreshBox
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -123,13 +118,8 @@ fun TaskScreen(
     val showButton by remember {
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(refreshState.nestedScrollConnection),
-        contentAlignment = Alignment.Center
-    ) {
 
+    PullToReFreshBox(state = refreshState){
         LazyColumn(
             Modifier.fillMaxSize(),
             state = listState,
@@ -148,15 +138,6 @@ fun TaskScreen(
             }
             item {
                 Box {
-                    val offset by remember {
-                        derivedStateOf { refreshState.verticalOffset > 0.0f }
-                    }
-                    val alpha by animateFloatAsState(
-                        targetValue = if (offset) 1.0f else 0.0f,
-                        label = "",
-                        animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing)
-                    )
-
                     TaskSection(title = R.string.today_task_title) {
                         val filterChipOptions = listOf("全部", "主线任务", "支线任务")
                         var selectedFilterChip by rememberSaveable {
@@ -182,14 +163,6 @@ fun TaskScreen(
                         }
 
                     }
-                    PullToRefreshContainer(
-                        state = refreshState,
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 80.dp)
-                            .alpha(alpha),
-                    )
-
                 }
             }
 
@@ -265,8 +238,9 @@ fun TaskScreen(
                 Icon(imageVector = Icons.Rounded.ArrowUpward, null)
             }
         }
-
     }
+
+
 }
 
 @Composable
@@ -321,7 +295,7 @@ fun TaskListItem(
                     // 左边部分
                     Column(Modifier.fillMaxWidth(0.7f)) {
                         Text(
-                            text = task.taskName,
+                            text = task.taskName ?: "",
                             style = MaterialTheme.typography.bodyLarge,
                             overflow = TextOverflow.Ellipsis,
                             fontWeight = FontWeight.Bold,
@@ -341,7 +315,7 @@ fun TaskListItem(
                             maxLines = 1,
                         )*/
                         Text(
-                            text = task.description,
+                            text = task.description ?: "",
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             overflow = TextOverflow.Ellipsis,
@@ -353,7 +327,7 @@ fun TaskListItem(
                     // 右边部分
                     Column {
                         Text(
-                            text = task.validTime,
+                            text = task.validTime ?: "",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 16.dp, end = 12.dp)
@@ -392,7 +366,7 @@ fun TaskListItem(
         }
 
         TaskType(
-            taskType = task.taskType, modifier = Modifier
+            taskType = task.taskType ?: "", modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = 8.dp)
         )
@@ -474,7 +448,6 @@ fun getSampleData(size: Int): List<String> {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun taskItem() {

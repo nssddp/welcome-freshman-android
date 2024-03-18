@@ -52,7 +52,7 @@ fun rememberWfAppState(
 
 
 @Stable
-class WfAppState @OptIn(ExperimentalMaterial3Api::class) constructor(
+class WfAppState constructor(
 //    val windowSizeClass: WindowSizeClass,
     val scope: CoroutineScope,
     val navController: NavHostController,

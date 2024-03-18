@@ -14,41 +14,41 @@ data class Task(
     val taskId: Int,
 
     @SerialName("task_name")
-    val taskName: String,
+    val taskName: String? = null,
 
     @SerialName("task_type")
-    val taskType: String,
+    val taskType: String? = null,
 
     @SerialName("task_value")
-    val taskValue: Int,
+    val taskValue: Int? = null,
     /**
      * 任务描述
      */
-    val description: String,
+    val description: String? = null,
     /**
      * 剩余时间
      */
-    @SerialName("rest_time")
-    val validTime: String,
+    @SerialName("valid_time")
+    val validTime: String? = null,
 
-    val progress: Int,
+    val progress: Int? = null,
 
-    val subTaskList: List<SubTask>
+    val subTaskList: List<SubTask>? = null
 )
 
 @Serializable
 data class SubTask(
     @SerialName("sub_task_id")
-    val subTaskId: Int,
+    val subTaskId: Int? = null,
 
     @SerialName("sub_task_name")
-    val subTaskName: String,
+    val subTaskName: String? = null,
 
     @SerialName("sub_task_status")
-    val subTaskStatus: String,
+    val subTaskStatus: String? = null,
 
     @SerialName("task_coordinate")
-    val taskCoordinate: Coordinate
+    val taskCoordinate: Coordinate? = null,
 
 )
 

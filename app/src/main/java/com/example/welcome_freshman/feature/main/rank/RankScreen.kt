@@ -1,7 +1,6 @@
 package com.example.welcome_freshman.feature.main.rank
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,11 +25,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,10 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +49,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.feature.main.profile.CommonDivider
+import com.example.welcome_freshman.ui.component.PullToReFreshBox
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -101,8 +99,7 @@ fun RankScreen() {
                 )
             }
         }
-        Box(Modifier.nestedScroll(refreshState.nestedScrollConnection)) {
-
+        PullToReFreshBox(state = refreshState){
             HorizontalPager(
                 state = pagerState,
                 contentPadding = PaddingValues(top = 0.dp),
@@ -147,7 +144,7 @@ fun RankScreen() {
 
                     for (i in 4 until 51) {
                         item {
-                            Divider(
+                            HorizontalDivider(
                                 Modifier.padding(vertical = 3.dp),
                                 thickness = 1.dp,
                                 color = MaterialTheme.colorScheme.primaryContainer
@@ -161,17 +158,6 @@ fun RankScreen() {
 
 
             }
-            val alpha by animateFloatAsState(
-                targetValue = if (refreshState.verticalOffset > 0.0f) 1.0f else 0.0f,
-                label = ""
-            )
-            PullToRefreshContainer(
-                state = refreshState,
-                modifier = Modifier.padding(bottom = 60.dp)
-                    .align(Alignment.TopCenter)
-                    .alpha(alpha),
-            )
-
         }
 
 

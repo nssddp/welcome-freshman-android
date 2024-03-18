@@ -10,7 +10,6 @@ import androidx.compose.animation.fadeOut
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.example.welcome_freshman.feature.detail.DetailRoute
 
 /**
  *@date 2024/1/29 18:06
@@ -25,7 +24,7 @@ fun NavController.navigateToCamera() {
     }
 }
 
-fun NavGraphBuilder.cameraScreen() {
+fun NavGraphBuilder.cameraScreen(onValidSuccess: () -> Unit) {
     composable(
         route = CAMERA_ROUTE,
         enterTransition = {
@@ -49,6 +48,6 @@ fun NavGraphBuilder.cameraScreen() {
             )
         }
     ) {
-        CameraRoute()
+        CameraRoute(onValidSuccess = onValidSuccess)
     }
 }

@@ -1,6 +1,9 @@
 package com.example.welcome_freshman.feature.updateUserInfo
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -10,16 +13,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,17 +25,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,14 +43,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.core.data.model.User
 import com.example.welcome_freshman.core.rememberPhotoPicker
 import com.example.welcome_freshman.feature.main.profile.bottomSheet
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 /**
  *@date 2024/3/6 19:45
@@ -64,30 +62,93 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun UpdateUserRoute(onBackClick: () -> Unit) {
+fun UpdateUserRoute(onBackClick: () -> Unit, viewModel: UpdateViewModel = hiltViewModel()) {
     var isUpdateName by remember {
         mutableStateOf(false)
     }
-    var nickName by remember {
-        mutableStateOf("")
-    }
-    when (isUpdateName) {
-        false -> UpdateUserScreen(onBackClick = onBackClick, onUpdateNameClick = { trigger, name ->
-            isUpdateName = trigger
-            nickName = name
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    val avatarUri by viewModel.avatarUri.collectAsState()
+
+    val scope = rememberCoroutineScope()
+
+    when (uiState) {
+        UpdateUiState.Loading -> {
+
+
         }
-        )
+
+        is UpdateUiState.Success -> {
+            var user by remember {
+                mutableStateOf((uiState as UpdateUiState.Success).user)
+            }
+            UpdateUserScreen(
+                user = user,
+                avatarUri = avatarUri,
+                onBackClick = onBackClick,
+                onUpdateNameClick = { trigger -> isUpdateName = trigger },
+                onGenderUpdate = {
+                    scope.launch {
+                        user = user.copy(
+                            gender = it
+                        )
+                        Log.d("updateuserInfo", user.toString())
+                        viewModel.updateUserInfo(user)
+                    }
+
+                },
+                uploadAvatar = {
+                    user.userId?.let { userId ->
+                        viewModel.uploadAvatar(
+                            it,
+                            userId
+                        )
+                    }
+                }
+
+            )
+            /*if (!isUpdateName) {
+
+            } else {
+                UpdateNameScreen(
+                    onBackClick = { isUpdateName = it },
+                    nickname = { user.userName },
+                    onConfirmClick = {
+                        // 进行网络请求
+                        scope.launch {
+                            user = user.copy(
+                                userName = it
+                            )
+                            viewModel.updateUserInfo(user)
+                        }
+                        isUpdateName = false
+                    },
+                )
+            }*/
+        }
 
         else -> {
-            UpdateNameScreen(onBackClick = { isUpdateName = it }, nickname = { nickName })
+
         }
+    }
+    BackHandler(enabled = isUpdateName) {
+        isUpdateName = false
     }
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String) {
+fun UpdateNameScreen(
+    onBackClick: (Boolean) -> Unit = {},
+    nickname: () -> String,
+    onConfirmClick: (userName: String) -> Unit = {},
+) {
+    var value by remember {
+        mutableStateOf(nickname())
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -101,7 +162,7 @@ fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String
                     }
                 },
                 actions = {
-                    TextButton(onClick = { /*TODO*/ }) {
+                    TextButton(onClick = { onConfirmClick(value) }) {
                         Text(text = "保存", style = MaterialTheme.typography.titleMedium)
                     }
                 }
@@ -113,9 +174,7 @@ fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String
                 .fillMaxSize()
                 .padding(padding), contentAlignment = Alignment.TopCenter
         ) {
-            var value by remember {
-                mutableStateOf(nickname())
-            }
+
             TextField(
                 value = value,
                 onValueChange = {
@@ -128,21 +187,29 @@ fun UpdateNameScreen(onBackClick: (Boolean) -> Unit = {}, nickname: () -> String
         }
     }
 
+}*/
 
-}
 
 @Preview
 @Composable
 fun UpdateNameScreenPreview() {
-    UpdateNameScreen() { "" }
+//    UpdateNameScreen(nickname = { "" })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateUserScreen(
+    user: User,
+    avatarUri: String?,
     onBackClick: () -> Unit = {},
-    onUpdateNameClick: (Boolean, String) -> Unit
+    onUpdateNameClick: (Boolean) -> Unit,
+    onGenderUpdate: (String) -> Unit,
+    uploadAvatar: (ByteArray?) -> Unit,
 ) {
+    Log.d("updateUser", user.toString())
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -160,31 +227,36 @@ fun UpdateUserScreen(
     ) { padding ->
         Column(Modifier.padding(padding), horizontalAlignment = Alignment.CenterHorizontally) {
             var selectedImageUri by remember {
-                mutableStateOf<Uri?>(null)
+                mutableStateOf<Uri?>(user.avatarUrl?.toUri())
             }
+            if (!avatarUri.isNullOrBlank()) selectedImageUri = avatarUri.toUri()
             val pickMedia = rememberPhotoPicker(onImagePicked = { uri ->
                 if (uri != null) {
-                    selectedImageUri = uri
+                    scope.launch {
+                        uploadAvatar(context.image2ByteArray(uri))
+                    }
+//                    selectedImageUri = uri
                 }
             })
 
             val sheetState = rememberModalBottomSheetState()
-
-            // 性别选择
-            var showGenderBottomSheet by remember { mutableStateOf(false) }
-            var selectedGender by remember {
-                mutableStateOf("男")
+            val selectedGender by remember {
+                mutableStateOf(user.gender)
             }
+            // 性别选择
+            /*var showGenderBottomSheet by remember { mutableStateOf(false) }
+
             if (showGenderBottomSheet) {
                 UpdateUserBottomSheet(
                     sheetState = sheetState,
                     showBottomSheet = { showGenderBottomSheet = it },
                     selectedGender = { gender ->
                         selectedGender = gender
+                        onGenderUpdate(gender)
                     },
                     gender = { selectedGender }
                 )
-            }
+            }*/
             // 头像选择
             var showAvatarBottomSheet by remember { mutableStateOf(false) }
             if (showAvatarBottomSheet) {
@@ -239,34 +311,37 @@ fun UpdateUserScreen(
                 )
             }
 
-
             HorizontalDivider(Modifier.padding(horizontal = 8.dp), thickness = 0.8.dp)
-            UpdateCard(cardName = "昵称",
-                userInfo = "服了",
+            UpdateCard(
+                cardName = "昵称",
+                userInfo = user.userName,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(
-                        remember {
-                            MutableInteractionSource()
-                        }, indication = null
-                    ) {
-                        onUpdateNameClick(true, "服了")
-                    }
+                /*.clickable(
+                    remember {
+                        MutableInteractionSource()
+                    }, indication = null
+                ) {
+                    onUpdateNameClick(true)
+                }*/
             )
+
             UpdateCard(
                 cardName = "学院",
-                userInfo = "计算机与软件学院",
+                userInfo = user.academy ?: "",
                 modifier = Modifier.fillMaxWidth()
             )
 
 
-            UpdateCard(cardName = "性别",
+
+            UpdateCard(
+                cardName = "性别",
                 userInfo = selectedGender,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(remember { MutableInteractionSource() }, indication = null) {
-                        showGenderBottomSheet = true
-                    }
+                /*.clickable(remember { MutableInteractionSource() }, indication = null) {
+                    showGenderBottomSheet = true
+                }*/
             )
 
 
@@ -295,22 +370,23 @@ private fun UpdateCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(text = cardName, style = MaterialTheme.typography.titleMedium)
-                Row(
+                Text(
+                    text = userInfo,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                /*Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
-                    Text(
-                        text = userInfo,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
                     )
-                }
+                }*/
 
             }
         }
@@ -319,7 +395,7 @@ private fun UpdateCard(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateUserBottomSheet(
     sheetState: SheetState,
@@ -328,7 +404,7 @@ fun UpdateUserBottomSheet(
     gender: () -> String,
 ) {
     val scope = rememberCoroutineScope()
-    var selectedGender by remember {
+    var defaultGender by remember {
         mutableStateOf("男")
     }
     ModalBottomSheet(
@@ -357,7 +433,7 @@ fun UpdateUserBottomSheet(
                 Text(text = "选择性别", style = MaterialTheme.typography.titleMedium)
 
                 TextButton(onClick = {
-                    selectedGender(selectedGender)
+                    selectedGender(defaultGender)
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showBottomSheet(false)
@@ -369,7 +445,7 @@ fun UpdateUserBottomSheet(
             }
             GenderPicker(
                 selectedGender = { gender ->
-                    selectedGender = gender
+                    defaultGender = gender
                 },
                 gender = gender
 
@@ -412,6 +488,19 @@ fun GenderPicker(selectedGender: (String) -> Unit, gender: () -> String) {
                 )
             }
         }
+    }
+}*/
+
+suspend fun Context.image2ByteArray(imageUri: Uri): ByteArray? {
+    return try {
+        this.contentResolver.openInputStream(imageUri)?.use { inputStream ->
+            val outputStream = ByteArrayOutputStream()
+            inputStream.copyTo(outputStream)
+            outputStream.toByteArray()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }
 

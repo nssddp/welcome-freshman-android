@@ -83,8 +83,8 @@ fun AccomplishScreen() {
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE1E1E4),
-                    unfocusedContainerColor = Color(0xFFE8E8EC)
+                    focusedContainerColor = Color(0xFFF1F1F3),
+                    unfocusedContainerColor = Color(0xFFF1F1F3)
                 )
             )
         }

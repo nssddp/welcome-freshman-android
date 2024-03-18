@@ -25,6 +25,8 @@ fun RowScope.WfNavigationBarItem(
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = selected,
 ) {
+
+
     NavigationBarItem(
         selected = selected,
         onClick = onClick,

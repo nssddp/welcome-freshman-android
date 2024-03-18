@@ -41,4 +41,16 @@ class WfPreferencesDataSource @Inject constructor(
             Log.e("NiaPreferences", "Failed to update user preferences", ioException)
         }
     }
+
+    suspend fun setValidState(state: Boolean) {//edit your preferences with different methods
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    this.validState = state
+                }
+            }
+        } catch (ioException: IOException) {
+            Log.e("NiaPreferences", "Failed to update user preferences", ioException)
+        }
+    }
 }

@@ -11,7 +11,7 @@ import javax.inject.Inject
  */
 
 interface TaskRepository {
-    suspend fun getTasksByUserId(id: Int?): List<Task>
+    suspend fun getTasksByUserId(id: Int?): List<Task>?
 
 }
 
@@ -19,7 +19,7 @@ class MainTaskRepository @Inject constructor(
     private val network: WfNetworkDataSource,
     private val notifier: Notifier,
 ) : TaskRepository {
-    override suspend fun getTasksByUserId(id: Int?): List<Task> = network.getTasksByUserId(id)
+    override suspend fun getTasksByUserId(id: Int?): List<Task>? = network.getTasksByUserId(id)
 
 }
 

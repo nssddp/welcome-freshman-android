@@ -1,5 +1,7 @@
 package com.example.welcome_freshman.core.data.repository.di
 
+import com.example.welcome_freshman.core.data.repository.AdRepository
+import com.example.welcome_freshman.core.data.repository.MainAdRepository
 import com.example.welcome_freshman.core.data.repository.MainTaskRepository
 import com.example.welcome_freshman.core.data.repository.MainUserRepository
 import com.example.welcome_freshman.core.data.repository.TaskRepository
@@ -21,5 +23,8 @@ interface WfNetworkModule {
 
     @Binds
     fun bindsTaskRepository(impl: MainTaskRepository): TaskRepository
+
+    @Binds
+    fun bindsAdRepository(impl: MainAdRepository): AdRepository
 
 }

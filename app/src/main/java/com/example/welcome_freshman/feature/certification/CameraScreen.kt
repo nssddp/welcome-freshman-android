@@ -16,9 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -27,16 +25,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrowseGallery
 import androidx.compose.material.icons.sharp.PhotoCamera
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,9 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.welcome_freshman.ui.component.ValidCircularIndicator
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -68,15 +65,21 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CameraRoute(viewModel: CameraViewModel = hiltViewModel()) {
+fun CameraRoute(viewModel: CameraViewModel = hiltViewModel(), onValidSuccess: () -> Unit) {
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
     LaunchedEffect(true) {
         cameraPermissionState.launchPermissionRequest()
     }
-    val bitmaps by viewModel.bitmap.collectAsState()
+
+    val uiState by viewModel.cameraUiState.collectAsState()
+
     if (cameraPermissionState.status.isGranted) {
-        CameraScreen(onPhotoTaken = viewModel::takePhoto, bitmaps = bitmaps)
+        CameraScreen(
+            onPhotoTaken = viewModel::takePhoto,
+            validState = uiState,
+            onValidSuccess = onValidSuccess
+        )
     } else {
         Text("需要相机权限")
     }
@@ -84,7 +87,11 @@ fun CameraRoute(viewModel: CameraViewModel = hiltViewModel()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraScreen(onPhotoTaken: (Bitmap) -> Unit, bitmaps: List<Bitmap>) {
+fun CameraScreen(
+    onPhotoTaken: (Bitmap) -> Unit,
+    validState: CameraUiState,
+    onValidSuccess: () -> Unit
+) {
 
     val rainbowColorsBrush = remember {
         Brush.sweepGradient(
@@ -108,82 +115,95 @@ fun CameraScreen(onPhotoTaken: (Bitmap) -> Unit, bitmaps: List<Bitmap>) {
         }/*.apply { cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA }*/
     }
     controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-    val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp,
-        sheetContent = {
-            PhotoBottomSheet(bitmaps = bitmaps)
-        }) {
-        Box(
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+//                .padding(it)
+            .padding(bottom = 100.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CameraPreview(
+            Modifier
+                .size(235.dp)
+                .clip(CircleShape)
+                .border(
+                    BorderStroke(4.dp, rainbowColorsBrush),
+                    CircleShape
+                ),
+            controller
+        )
+
+        /*IconButton(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .padding(bottom = 100.dp),
-            contentAlignment = Alignment.Center
+//                        .align(Alignment.BottomCenter)
+//                        .padding(16.dp)
+                .size(66.dp),
+            onClick = {
+                scope.launch {
+                    scaffoldState.bottomSheetState.expand()
+                }
+            },
+            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Gray)
         ) {
-            CameraPreview(
-                Modifier
-                    .size(235.dp)
-                    .clip(CircleShape)
-                    .border(
-                        BorderStroke(4.dp, rainbowColorsBrush),
-                        CircleShape
-                    ),
-                controller
+            Icon(
+                imageVector = Icons.Default.BrowseGallery,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(46.dp)
             )
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                IconButton(
-                    modifier = Modifier
-//                        .align(Alignment.BottomCenter)
-//                        .padding(16.dp)
-                        .size(66.dp),
-                    onClick = {
-                        scope.launch {
-                            scaffoldState.bottomSheetState.expand()
-                        }
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Gray)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.BrowseGallery,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(46.dp)
-                    )
-                }
-                IconButton(
-                    modifier = Modifier
-//                        .align(Alignment.BottomCenter)
-//                        .padding(16.dp)
-                        .size(66.dp),
-                    onClick = {
-                        takePhoto(
-                            context = context,
-                            controller = controller,
-                            onPhotoTaken = onPhotoTaken
-                        )
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Gray)
-                ) {
-                    Icon(
-                        imageVector = Icons.Sharp.PhotoCamera,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(46.dp)
-                    )
-                }
+        }*/
+
+        IconButton(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+                .size(66.dp),
+            onClick = {
+                takePhoto(
+                    context = context,
+                    controller = controller,
+                    onPhotoTaken = onPhotoTaken
+                )
+
+            },
+            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Gray)
+        ) {
+            Icon(
+                imageVector = Icons.Sharp.PhotoCamera,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(46.dp)
+            )
+        }
+
+        when (validState) {
+            CameraUiState.Loading -> {
+                ValidCircularIndicator(indicatorState = 0)
             }
 
+            CameraUiState.Success -> {
+                ValidCircularIndicator(indicatorState = 1)
+                scope.launch{
+                    delay(1000)
+                    onValidSuccess()
+                }
+
+
+            }
+
+            CameraUiState.Error -> {
+                ValidCircularIndicator(indicatorState = 2)
+
+            }
+
+            CameraUiState.WaitValid -> {}
+
         }
+
+
     }
 
 
@@ -197,7 +217,7 @@ fun CameraPreview(modifier: Modifier, controller: LifecycleCameraController) {
         factory = { ctx ->
             PreviewView(ctx).apply {
                 this.controller = controller
-                    controller.bindToLifecycle(lifecycleOwner)
+                controller.bindToLifecycle(lifecycleOwner)
 
             }
         },

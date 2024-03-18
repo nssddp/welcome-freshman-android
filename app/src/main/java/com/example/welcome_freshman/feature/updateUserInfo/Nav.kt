@@ -17,36 +17,36 @@ import androidx.navigation.compose.composable
  */
 const val UPDATE_USER_ROUTE = "Update_user_route"
 
-fun NavController.navigateToUpdateUser(id: Int) {
- this.navigate(UPDATE_USER_ROUTE) {
-  launchSingleTop = true
- }
+fun NavController.navigateToUpdateUser() {
+    this.navigate(UPDATE_USER_ROUTE) {
+        launchSingleTop = true
+    }
 }
 
 fun NavGraphBuilder.updateUserScreen(onBackClick: () -> Unit) {
- composable(
-  route = UPDATE_USER_ROUTE,
-  enterTransition = {
-   fadeIn(
-    animationSpec = tween(
-     100, easing = LinearEasing
-    )
-   ) + slideIntoContainer(
-    animationSpec = tween(100, easing = EaseIn),
-    towards = AnimatedContentTransitionScope.SlideDirection.Start
-   )
-  },
-  exitTransition = {
-   fadeOut(
-    animationSpec = tween(
-     100, easing = LinearEasing
-    )
-   ) + slideOutOfContainer(
-    animationSpec = tween(100, easing = EaseOut),
-    towards = AnimatedContentTransitionScope.SlideDirection.End
-   )
-  }
- ) {
-  UpdateUserRoute(onBackClick = onBackClick)
- }
+    composable(
+        route = UPDATE_USER_ROUTE,
+        enterTransition = {
+            fadeIn(
+                animationSpec = tween(
+                    100, easing = LinearEasing
+                )
+            ) + slideIntoContainer(
+                animationSpec = tween(100, easing = EaseIn),
+                towards = AnimatedContentTransitionScope.SlideDirection.Start
+            )
+        },
+        exitTransition = {
+            fadeOut(
+                animationSpec = tween(
+                    100, easing = LinearEasing
+                )
+            ) + slideOutOfContainer(
+                animationSpec = tween(100, easing = EaseOut),
+                towards = AnimatedContentTransitionScope.SlideDirection.End
+            )
+        }
+    ) {
+        UpdateUserRoute(onBackClick = onBackClick)
+    }
 }

@@ -8,18 +8,23 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.welcome_freshman.feature.ad.AdScreen
 import com.example.welcome_freshman.feature.login.LOGIN_GRAPH
 import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
 import com.example.welcome_freshman.ui.WfApp
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -71,10 +76,26 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
+                val adUrl by viewModel.adUrl.collectAsState()
+
+                var count by remember {
+                    mutableStateOf(5)
+                }
+                LaunchedEffect(key1 = Unit, block = {
+                    while (count > 0) {
+                        delay(1000)
+                        count -= 1
+                    }
+                })
 
                 if (startDestination.isNotBlank()) {
-                    Log.d("startDestination",startDestination)
-                    WfApp(startDestination = startDestination)
+                    if (count == 0) {
+                        Log.d("startDestination", startDestination)
+                        WfApp(startDestination = startDestination)
+                    } else {
+                        AdScreen(count = { count }, adUrl = { adUrl })
+
+                    }
                 }
 
 

@@ -25,8 +25,11 @@ class ProfileViewModel @Inject constructor(
 
     private val userPref = userRepository.userData
 
+    private val _user = MutableStateFlow<User?>(null)
+    val user = _user
+
     init {
-        getUserInfo()
+//        getUserInfo()
     }
 
     /*fun getUserById(id: String) {
@@ -53,11 +56,16 @@ class ProfileViewModel @Inject constructor(
             try {
                 userPref.collect { pref ->
                     Log.d("学号", pref.toString())
-                    _profileUiState.value =
-                        ProfileUiState.Success(userRepository.getUserById(pref.userId))
+                    val user = userRepository.getUserById(pref.userId)
+                    if (user != null) {
+                        if (user.avatarUrl.isNullOrBlank()) user.avatarUrl = null
+                        Log.d("profileUserInfo", user.toString())
+                        _user.value = user
+                        _profileUiState.value = ProfileUiState.Success
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("connectError", "connect error......", e)
+                Log.e("profileUserInfo", "connect error......", e)
                 _profileUiState.value = ProfileUiState.Error
             }
 
@@ -80,7 +88,7 @@ class ProfileViewModel @Inject constructor(
 }*/
 
 sealed interface ProfileUiState {
-    data class Success(val user: User) : ProfileUiState
+    object Success : ProfileUiState
     object Error : ProfileUiState
     object Loading : ProfileUiState
 }

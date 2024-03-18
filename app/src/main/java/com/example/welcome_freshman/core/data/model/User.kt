@@ -10,30 +10,35 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class User(
-    @SerialName("user_id")
-    val userId: Int,
+    val userId: Int? = 0,
 
-    @SerialName("user_name")
-    val userName: String,
+    @SerialName("account")
+    val userName: String = "",
 
-    val gender: String,
+    val gender: String = "男",
     /**
      * 头像
      */
-    @SerialName("avatar_url")
-    val avatarUrl: String,
+    @SerialName("head")
+    var avatarUrl: String? = null,
     /**
      * 积分
      */
-    val score: Int,
+    val score: Int? = null,
     /**
      * 等级
      */
-    val garde: Int,
+    val garde: Int? = null,
     /**
      * 学院
      */
-    val academy: String
+    val academy: String? = null,
+
+    /**
+     * 激活状态
+     */
+    @SerialName("preferences")
+    val validState: String? = null,
 )
 
 @Serializable

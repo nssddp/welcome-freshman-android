@@ -9,14 +9,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.example.welcome_freshman.feature.accomplish.accomplishScreen
 import com.example.welcome_freshman.feature.accomplish.navigateToAccomplish
+import com.example.welcome_freshman.feature.certification.CAMERA_ROUTE
 import com.example.welcome_freshman.feature.certification.cameraScreen
 import com.example.welcome_freshman.feature.certification.navigateToCamera
 import com.example.welcome_freshman.feature.detail.detailScreen
 import com.example.welcome_freshman.feature.detail.navigateToDetail
 import com.example.welcome_freshman.feature.login.LOGIN_GRAPH
 import com.example.welcome_freshman.feature.login.loginGraph
-import com.example.welcome_freshman.feature.main.rank.rankScreen
 import com.example.welcome_freshman.feature.main.profile.profileScreen
+import com.example.welcome_freshman.feature.main.rank.rankScreen
 import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
 import com.example.welcome_freshman.feature.main.task.taskScreen
 import com.example.welcome_freshman.feature.register.navigateToRegister
@@ -72,7 +73,13 @@ fun WfNavHost(
             onBackClick = { navController.popBackStack() },
             onAccomplishClick = navController::navigateToAccomplish
         )
-        cameraScreen()
+        cameraScreen(onValidSuccess = {
+            navController.navigate(TASK_ROUTE) {
+                popUpTo(CAMERA_ROUTE) {
+                    inclusive = true
+                }
+            }
+        })
         accomplishScreen(onBackClick = { navController.popBackStack() })
         updateUserScreen(onBackClick = { navController.popBackStack() })
     }
