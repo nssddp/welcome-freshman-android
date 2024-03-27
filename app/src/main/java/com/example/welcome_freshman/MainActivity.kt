@@ -8,16 +8,22 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.baidu.location.LocationClient
+import com.example.welcome_freshman.core.data.model.DarkThemeConfig
 import com.example.welcome_freshman.feature.ad.AdScreen
 import com.example.welcome_freshman.feature.login.LOGIN_GRAPH
 import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
@@ -32,10 +38,13 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        LocationClient.setAgreePrivacy(true)
 
         val splashScreen = installSplashScreen()
         var uiState: MainActivityUiState by mutableStateOf(MainActivityUiState.Loading)
@@ -53,6 +62,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 Color.TRANSPARENT, Color.TRANSPARENT
@@ -63,12 +73,20 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            WelcomeFreshmanTheme {
+
+            val darkTheme = shouldUseDarkTheme(uiState = uiState)
+
+            WelcomeFreshmanTheme(
+                darkTheme = darkTheme
+            ) {
                 val startDestination = when (uiState) {
                     is MainActivityUiState.Loading -> ""
                     is MainActivityUiState.Success -> {
-                        Log.d("userId", (uiState as MainActivityUiState.Success).userId.toString())
-                        if ((uiState as MainActivityUiState.Success).userId == 0) {
+                        Log.d(
+                            "userId",
+                            (uiState as MainActivityUiState.Success).userData.userId.toString()
+                        )
+                        if ((uiState as MainActivityUiState.Success).userData.userId == 0) {
                             LOGIN_GRAPH
                         } else {
                             TASK_ROUTE
@@ -78,9 +96,12 @@ class MainActivity : ComponentActivity() {
                 }
                 val adUrl by viewModel.adUrl.collectAsState()
 
-                var count by remember {
-                    mutableStateOf(5)
+                var count by rememberSaveable {
+                    mutableIntStateOf(5)
                 }
+                /*var showAd by remember {
+                    mutableStateOf(true)
+                }*/
                 LaunchedEffect(key1 = Unit, block = {
                     while (count > 0) {
                         delay(1000)
@@ -89,11 +110,11 @@ class MainActivity : ComponentActivity() {
                 })
 
                 if (startDestination.isNotBlank()) {
-                    if (count == 0) {
+                    if (count <= 0) {
                         Log.d("startDestination", startDestination)
                         WfApp(startDestination = startDestination)
                     } else {
-                        AdScreen(count = { count }, adUrl = { adUrl })
+                        AdScreen(count = { count }, adUrl = { adUrl }, onSkipClick = { count = 0 })
 
                     }
                 }
@@ -102,5 +123,17 @@ class MainActivity : ComponentActivity() {
             }
 
         }
+    }
+}
+
+@Composable
+private fun shouldUseDarkTheme(
+    uiState: MainActivityUiState,
+): Boolean = when (uiState) {
+    MainActivityUiState.Loading -> isSystemInDarkTheme()
+    is MainActivityUiState.Success -> when (uiState.userData.darkThemeConfig) {
+        DarkThemeConfig.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+        DarkThemeConfig.LIGHT -> false
+        DarkThemeConfig.DARK -> true
     }
 }

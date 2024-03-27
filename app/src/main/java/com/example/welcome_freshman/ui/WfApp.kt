@@ -23,6 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -35,6 +39,7 @@ import com.example.welcome_freshman.feature.certification.navigateToCamera
 import com.example.welcome_freshman.feature.login.LoginViewModel
 import com.example.welcome_freshman.feature.login.navigateToLoginGraph
 import com.example.welcome_freshman.feature.main.task.TASK_ROUTE
+import com.example.welcome_freshman.feature.settings.SettingsDialog
 import com.example.welcome_freshman.mainNav.TopLevelDestination
 import com.example.welcome_freshman.mainNav.WfNavHost
 import com.example.welcome_freshman.ui.component.WfBackground
@@ -56,9 +61,17 @@ fun WfApp(
     startDestination: String,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
+
+    var showSettingsDialog by rememberSaveable { mutableStateOf(false) }
+
     WfBackground {
         val destination = appState.currentTopLevelDestination
         val context = LocalContext.current
+
+        if (showSettingsDialog) {
+            SettingsDialog(onDismiss = { showSettingsDialog = false })
+        }
+
         WfNavigationDrawer(
             drawerState = appState.drawerState,
             gesturesEnabled = { destination != null },
@@ -115,7 +128,7 @@ fun WfApp(
                             ),
                         ),
                 ) {
-                    Box() {
+                    Box {
                         Column(Modifier.fillMaxSize()) {
 
                             if (destination != null) {
@@ -135,7 +148,8 @@ fun WfApp(
                                                 if (isClosed) open() else close()
                                             }
                                         }
-                                    }
+                                    },
+                                    onActionClick = { showSettingsDialog = true }
                                 )
 
                             }

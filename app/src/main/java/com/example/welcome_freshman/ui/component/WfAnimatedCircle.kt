@@ -81,7 +81,7 @@ fun AnimatedCircle(
             halfSize.height - innerRadius
         )
         val size = Size(innerRadius * 2, innerRadius * 2)
-        var startAngle = shift - 90f
+        val startAngle = shift - 90f
 
         // 绘制圆环的部分
         val sweep = angleOffset

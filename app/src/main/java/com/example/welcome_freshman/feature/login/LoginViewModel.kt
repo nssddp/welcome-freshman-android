@@ -22,6 +22,7 @@ class LoginViewModel @Inject constructor(
     val uiState = _uiState
     suspend fun doLogin(stuId: Int, pwd: String): Pair<Boolean, String> {
         _uiState.value = LoginUiState.Loading
+        userRepository.setUserId(1)
         try {
             val resp = userRepository.loginCheck(LoginRequest(stuId, pwd))
             if (resp.msg == "success" && resp.data?.userId != null) {

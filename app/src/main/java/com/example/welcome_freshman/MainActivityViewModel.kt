@@ -3,6 +3,7 @@ package com.example.welcome_freshman
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.welcome_freshman.core.data.model.UserData
 import com.example.welcome_freshman.core.data.repository.AdRepository
 import com.example.welcome_freshman.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +27,7 @@ class MainActivityViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<MainActivityUiState> = userRepository.userData.map {
-        MainActivityUiState.Success(it.userId)
+        MainActivityUiState.Success(it)
     }.stateIn(
         scope = viewModelScope,
         initialValue = MainActivityUiState.Loading,
@@ -55,5 +56,5 @@ class MainActivityViewModel @Inject constructor(
 
 sealed interface MainActivityUiState {
     object Loading : MainActivityUiState
-    data class Success(val userId: Int) : MainActivityUiState
+    data class Success(val userData: UserData) : MainActivityUiState
 }

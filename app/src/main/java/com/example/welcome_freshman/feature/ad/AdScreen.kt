@@ -23,7 +23,7 @@ import coil.compose.AsyncImage
  *@author GFCoder
  */
 @Composable
-fun AdScreen(count: () -> Int, adUrl: () -> String?) {
+fun AdScreen(count: () -> Int, adUrl: () -> String?,onSkipClick: () -> Unit) {
 
 
     Box(Modifier.fillMaxSize()) {
@@ -36,7 +36,7 @@ fun AdScreen(count: () -> Int, adUrl: () -> String?) {
 
 
         Button(
-            onClick = { /*TODO*/ },
+            onClick = onSkipClick,
             colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
             modifier = Modifier
                 .align(Alignment.TopEnd)

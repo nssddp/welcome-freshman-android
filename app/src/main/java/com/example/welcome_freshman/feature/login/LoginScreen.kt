@@ -6,13 +6,27 @@ import android.net.Uri
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
@@ -25,6 +39,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,19 +48,28 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
@@ -56,7 +80,9 @@ import androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
 import androidx.media3.ui.PlayerView
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.ui.component.LoadingDialog
-import com.example.welcome_freshman.ui.component.WfDialog
+import com.example.welcome_freshman.ui.theme.BlueSky
+import com.example.welcome_freshman.ui.theme.BorderColor
+import com.example.welcome_freshman.ui.theme.NightSky
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.launch
 
@@ -189,7 +215,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: (stuId: String, pwd: 
         TextInput(
             InputType.StuId,
             keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
-            valueChange = {if (it.isDigitsOnly())  stuId = it },
+            valueChange = { if (it.isDigitsOnly()) stuId = it },
             showValue = { stuId }
         )
         TextInput(
@@ -199,7 +225,7 @@ fun LoginScreen(onRegisterClick: () -> Unit, onLoginClick: (stuId: String, pwd: 
                 onLoginClick(stuId, password)
             }),
             focusRequest = passwordFocusRequester,
-            valueChange = {if (!it.contains(' ') ) password = it },
+            valueChange = { if (!it.contains(' ')) password = it },
             showValue = { password }
         )
         Button(
@@ -274,12 +300,16 @@ fun TextInput(
 
 }
 
+@Composable
+fun LoginScreenTest() {
+
+}
+
+
 
 @Preview(showBackground = true)
 @Composable
-fun loginScreenPreview() {
-    WelcomeFreshmanTheme {
-
-    }
+fun LoginScreenPreview() {
+    
 
 }

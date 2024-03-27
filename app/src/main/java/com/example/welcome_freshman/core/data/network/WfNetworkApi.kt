@@ -1,7 +1,5 @@
 package com.example.welcome_freshman.core.data.network
 
-import android.net.Uri
-import androidx.core.net.toUri
 import com.example.welcome_freshman.core.data.model.LoginRequest
 import com.example.welcome_freshman.core.data.model.Task
 import com.example.welcome_freshman.core.data.model.User
@@ -25,7 +23,6 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
 

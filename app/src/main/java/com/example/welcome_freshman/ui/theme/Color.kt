@@ -66,3 +66,7 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 
 val seed = Color(0xFF3C5BA9)
+
+val BlueSky= Color(0xFF4478a9)
+val NightSky =  Color(0xFF333333)
+val BorderColor = Color(0x40000000)

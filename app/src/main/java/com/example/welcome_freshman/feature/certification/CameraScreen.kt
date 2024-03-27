@@ -1,5 +1,6 @@
 package com.example.welcome_freshman.feature.certification
 
+import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
@@ -53,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.welcome_freshman.ui.component.ValidCircularIndicator
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -66,17 +67,29 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CameraRoute(viewModel: CameraViewModel = hiltViewModel(), onValidSuccess: () -> Unit) {
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+//    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
-    LaunchedEffect(true) {
-        cameraPermissionState.launchPermissionRequest()
+    val multiPermissionState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    )
+
+    LaunchedEffect(multiPermissionState) {
+//        cameraPermissionState.launchPermissionRequest()
+        multiPermissionState.launchMultiplePermissionRequest()
     }
+
 
     val uiState by viewModel.cameraUiState.collectAsState()
 
-    if (cameraPermissionState.status.isGranted) {
+    val context = LocalContext.current
+
+
+    if (multiPermissionState.allPermissionsGranted) {
         CameraScreen(
-            onPhotoTaken = viewModel::takePhoto,
+            onPhotoTaken = { viewModel.takePhoto(it) },
             validState = uiState,
             onValidSuccess = onValidSuccess
         )
@@ -85,7 +98,6 @@ fun CameraRoute(viewModel: CameraViewModel = hiltViewModel(), onValidSuccess: ()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraScreen(
     onPhotoTaken: (Bitmap) -> Unit,
@@ -186,9 +198,11 @@ fun CameraScreen(
 
             CameraUiState.Success -> {
                 ValidCircularIndicator(indicatorState = 1)
-                scope.launch{
-                    delay(1000)
-                    onValidSuccess()
+                LaunchedEffect(Unit) {
+                    scope.launch {
+                        delay(1000)
+                        onValidSuccess()
+                    }
                 }
 
 

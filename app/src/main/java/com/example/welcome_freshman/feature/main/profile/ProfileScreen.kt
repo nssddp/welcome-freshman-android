@@ -3,12 +3,10 @@ package com.example.welcome_freshman.feature.main.profile
 import android.net.Uri
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +31,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -47,10 +44,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +60,7 @@ import com.example.welcome_freshman.feature.certification.CertificationDialog
 import com.example.welcome_freshman.feature.login.LoginViewModel
 import com.example.welcome_freshman.feature.updateUserInfo.UpdateViewModel
 import com.example.welcome_freshman.feature.updateUserInfo.image2ByteArray
+import com.example.welcome_freshman.ui.component.PullToReFreshBox
 import com.example.welcome_freshman.ui.validToast
 import kotlinx.coroutines.launch
 
@@ -115,7 +111,7 @@ fun ProfileRoute(
         }
     }
     if (refreshState.isRefreshing) {
-        LaunchedEffect(true) {
+        LaunchedEffect(Unit) {
             profileViewModel.getUserInfo()
         }
     }
@@ -203,8 +199,7 @@ fun ProfileScreen(
 
     }
 
-
-    Box(Modifier.nestedScroll(refreshState.nestedScrollConnection)) {
+    PullToReFreshBox(state = refreshState) {
         LazyColumn(
             Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -255,17 +250,6 @@ fun ProfileScreen(
 
         }
 
-        val alpha by animateFloatAsState(
-            targetValue = if (refreshState.verticalOffset > 0.0f) 1.0f else 0.0f,
-            label = ""
-        )
-        PullToRefreshContainer(
-            state = refreshState,
-            modifier = Modifier
-                .padding(bottom = 60.dp)
-                .align(Alignment.TopCenter)
-                .alpha(alpha),
-        )
     }
 
 }

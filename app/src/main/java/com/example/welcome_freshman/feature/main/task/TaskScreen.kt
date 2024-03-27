@@ -90,7 +90,7 @@ fun TaskRoute(onDetailClick: (String) -> Unit = {}, viewModel: TaskViewModel = h
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
     onDetailClick: (String) -> Unit = {},
