@@ -136,7 +136,7 @@ private interface WfNetworkApi {
     suspend fun checkOnNotice(
         @Part identityBody: MultipartBody.Part,
         @Part("userId") userIdRequestBody: RequestBody
-    ): Int
+    ): NetworkResponse<String>
 
 }
 
@@ -290,7 +290,7 @@ class RetrofitWfNetwork @Inject constructor(
         val identityBody = MultipartBody.Part.createFormData("admission", "image.jpg", requestBody)
         val userIdRequestBody = userId.toString().toRequestBody("text/plain".toMediaType())
 
-        return networkApi.checkOnNotice(identityBody, userIdRequestBody)
+        return networkApi.checkOnNotice(identityBody, userIdRequestBody).code
     }
 }
 

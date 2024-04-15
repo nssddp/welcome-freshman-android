@@ -66,7 +66,8 @@ class MainTaskRepository @Inject constructor(
         identity = pic, userId = stuId, taskId = subTaskId
     )
 
-    override suspend fun checkOnNotice(pic: ByteArray, userId: Int): Int =network.checkOnNotice(pic,userId)
+    override suspend fun checkOnNotice(pic: ByteArray, userId: Int): Int =
+        network.checkOnNotice(pic, userId)
 
 
 }
