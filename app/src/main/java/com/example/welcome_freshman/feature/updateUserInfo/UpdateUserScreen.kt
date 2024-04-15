@@ -52,7 +52,7 @@ import coil.compose.AsyncImage
 import com.example.welcome_freshman.R
 import com.example.welcome_freshman.core.data.model.User
 import com.example.welcome_freshman.core.rememberPhotoPicker
-import com.example.welcome_freshman.feature.main.profile.bottomSheet
+import com.example.welcome_freshman.feature.main.profile.BottomSheet
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
@@ -260,7 +260,7 @@ fun UpdateUserScreen(
             // 头像选择
             var showAvatarBottomSheet by remember { mutableStateOf(false) }
             if (showAvatarBottomSheet) {
-                bottomSheet(
+                BottomSheet(
                     sheetState = sheetState,
                     showBottomSheet = { showAvatarBottomSheet = it },
                     onSelectAvatarClick = {
@@ -277,7 +277,7 @@ fun UpdateUserScreen(
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
-                    model = selectedImageUri ?: R.drawable.logo, contentDescription = null,
+                    model = selectedImageUri ?: R.drawable.logo_yuzu, contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .padding(16.dp)
@@ -491,7 +491,7 @@ fun GenderPicker(selectedGender: (String) -> Unit, gender: () -> String) {
     }
 }*/
 
-suspend fun Context.image2ByteArray(imageUri: Uri): ByteArray? {
+fun Context.image2ByteArray(imageUri: Uri): ByteArray? {
     return try {
         this.contentResolver.openInputStream(imageUri)?.use { inputStream ->
             val outputStream = ByteArrayOutputStream()

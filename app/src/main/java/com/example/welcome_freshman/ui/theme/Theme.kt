@@ -1,7 +1,6 @@
 package com.example.welcome_freshman.ui.theme
 
 import android.app.Activity
-import android.graphics.Color
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,15 +8,16 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
@@ -83,6 +83,26 @@ private val LightColorScheme = lightColorScheme(
     scrim = md_theme_light_scrim,
 )
 
+/**
+ * Light Android gradient colors
+ */
+val LightAndroidGradientColors = GradientColors(container = DarkGreenGray95)
+
+/**
+ * Dark Android gradient colors
+ */
+val DarkAndroidGradientColors = GradientColors(container = Color.Black)
+
+/**
+ * Light Android background theme
+ */
+val LightAndroidBackgroundTheme = BackgroundTheme(color = DarkGreenGray95)
+
+/**
+ * Dark Android background theme
+ */
+val DarkAndroidBackgroundTheme = BackgroundTheme(color = Color.Black)
+
 @Composable
 fun WelcomeFreshmanTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -103,12 +123,22 @@ fun WelcomeFreshmanTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color.TRANSPARENT
+            window.statusBarColor = Color.Transparent.toArgb()
             val windowInsetsController =
                 WindowCompat.getInsetsController(window, window.decorView)
             windowInsetsController.isAppearanceLightStatusBars = !darkTheme
         }
     }
+
+    // Gradient colors
+    val emptyGradientColors = GradientColors(container = colorScheme.surfaceColorAtElevation(2.dp))
+    val defaultGradientColors = GradientColors(
+        top = colorScheme.inverseOnSurface,
+        bottom = colorScheme.primaryContainer,
+        container = colorScheme.surface,
+    )
+    val gradientColors =  if (darkTheme) DarkAndroidGradientColors else LightAndroidGradientColors
+
 
     // Background theme
     val defaultBackgroundTheme = BackgroundTheme(
@@ -116,12 +146,11 @@ fun WelcomeFreshmanTheme(
         tonalElevation = 2.dp,
     )
 
-    val backgroundTheme = defaultBackgroundTheme
-
     val tintTheme = TintTheme()
 
     CompositionLocalProvider(
-        LocalBackgroundTheme provides backgroundTheme,
+        LocalGradientColors provides defaultGradientColors,
+        LocalBackgroundTheme provides defaultBackgroundTheme,
         LocalTintTheme provides tintTheme,
     ) {
         MaterialTheme(

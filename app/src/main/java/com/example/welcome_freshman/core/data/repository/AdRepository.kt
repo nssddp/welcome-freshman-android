@@ -9,6 +9,7 @@ import javax.inject.Inject
  */
 interface AdRepository {
     suspend fun getAd(userId: Int): String?
+    suspend fun getAdNoLogin(): String?
 
 }
 
@@ -17,4 +18,7 @@ class MainAdRepository @Inject constructor(
 
     ) : AdRepository {
     override suspend fun getAd(userId: Int): String? = network.getAd(userId)
+    override suspend fun getAdNoLogin(): String? = network.getAdNoLogin()
+
+
 }

@@ -18,15 +18,14 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <!--    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
 
-
-    <application
+    <application    
         android:name=".WfApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/welcom_fresh_logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/welcom_fresh_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.Welcomefreshman"
         android:usesCleartextTraffic="true"
@@ -42,10 +41,14 @@
             </intent-filter>
         </activity>
 
+        <!--百度地图相关-->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="RX8L6QBkTJlnZxLNdNHepJDlxasBmeeT" />
         <!--百度定位相关-->
         <meta-data
             android:name="AK"
-            android:value="e91i40egNvwwZEM979U0iurJGOnm7B2C" />
+            android:value="RX8L6QBkTJlnZxLNdNHepJDlxasBmeeT" />
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"

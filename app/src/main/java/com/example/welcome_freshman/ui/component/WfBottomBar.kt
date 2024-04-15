@@ -7,6 +7,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /**
@@ -25,7 +27,6 @@ fun RowScope.WfNavigationBarItem(
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = selected,
 ) {
-
 
     NavigationBarItem(
         selected = selected,
@@ -52,7 +53,8 @@ fun WfNavigationBar(
 ) {
     NavigationBar(
         modifier = modifier,
-        contentColor = WfNavigationDefaults.navigationContentColor(),
+        containerColor = Color.Transparent,
+        contentColor =  Color.Transparent/*WfNavigationDefaults.navigationContentColor()*/,
         tonalElevation = 0.dp,
         content = content,
     )

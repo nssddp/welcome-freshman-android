@@ -30,7 +30,7 @@ import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun CertificationDialog(
-    onFaceAuthenticationClick: () -> Unit,
+    onAuthenticationClick: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -44,12 +44,16 @@ fun CertificationDialog(
             Divider()
             Column {
                 CertificationRow(text = "人脸识别认证") {
-                    onFaceAuthenticationClick()
+                    onAuthenticationClick("1")
                 }
                 Divider()
-                CertificationRow(text = "身份证识别") {}
+                CertificationRow(text = "身份证识别") {
+                    onAuthenticationClick("2")
+                }
                 Divider()
-                CertificationRow(text = "入学通知书识别") {}
+                CertificationRow(text = "入学通知书识别") {
+                    onAuthenticationClick("3")
+                }
                 Divider()
             }
         },

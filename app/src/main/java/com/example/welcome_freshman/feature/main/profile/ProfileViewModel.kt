@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.welcome_freshman.core.data.model.User
+import com.example.welcome_freshman.core.data.repository.AdRepository
 import com.example.welcome_freshman.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,7 +19,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val adRepository: AdRepository,
 ) : ViewModel() {
 
     private val _profileUiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -30,8 +33,25 @@ class ProfileViewModel @Inject constructor(
 
     init {
 //        getUserInfo()
+        getAdUrl()
     }
 
+    private val _adUrl  = MutableStateFlow<String?>("")
+    val adUrl = _adUrl
+
+    private fun getAdUrl() {
+        viewModelScope.launch {
+            try {
+                val adUrl = adRepository.getAdNoLogin()
+                if (!adUrl.isNullOrBlank())
+                    _adUrl.value = adUrl
+            } catch (e: Exception) {
+                e.printStackTrace()
+
+            }
+
+        }
+    }
     /*fun getUserById(id: String) {
         viewModelScope.launch {
             userRepository.getUserById(id)

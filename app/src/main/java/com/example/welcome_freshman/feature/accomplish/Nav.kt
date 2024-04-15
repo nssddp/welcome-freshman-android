@@ -32,20 +32,20 @@ fun NavGraphBuilder.accomplishScreen(onBackClick: () -> Unit) {
         enterTransition = {
             fadeIn(
                 animationSpec = tween(
-                    100, easing = LinearEasing
+                    500, easing = LinearEasing
                 )
             ) + slideIntoContainer(
-                animationSpec = tween(100, easing = EaseIn),
+                animationSpec = tween(500, easing = EaseIn),
                 towards = AnimatedContentTransitionScope.SlideDirection.Start
             )
         },
         exitTransition = {
             fadeOut(
                 animationSpec = tween(
-                    100, easing = LinearEasing
+                    500, easing = LinearEasing
                 )
             ) + slideOutOfContainer(
-                animationSpec = tween(100, easing = EaseOut),
+                animationSpec = tween(500, easing = EaseOut),
                 towards = AnimatedContentTransitionScope.SlideDirection.End
             )
         }

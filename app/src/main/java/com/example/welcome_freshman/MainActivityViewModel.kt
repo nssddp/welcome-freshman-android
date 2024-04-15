@@ -1,6 +1,5 @@
 package com.example.welcome_freshman
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.welcome_freshman.core.data.model.UserData
@@ -34,7 +33,7 @@ class MainActivityViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
     )
 
-    private val _adUrl  = MutableStateFlow<String?>("")
+    private val _adUrl = MutableStateFlow<String?>("")
     val adUrl = _adUrl
 
     init {
@@ -44,9 +43,13 @@ class MainActivityViewModel @Inject constructor(
     private fun getAdUrl() {
         viewModelScope.launch {
             try {
-                _adUrl.value = adRepository.getAd(userRepository.userData.first().userId)
+                if (userRepository.userData.first().userId == 0)
+                    _adUrl.value = adRepository.getAdNoLogin()
+                else
+                    _adUrl.value = adRepository.getAd(userRepository.userData.first().userId)
             } catch (e: Exception) {
                 e.printStackTrace()
+
             }
 
         }
@@ -56,5 +59,8 @@ class MainActivityViewModel @Inject constructor(
 
 sealed interface MainActivityUiState {
     object Loading : MainActivityUiState
+
     data class Success(val userData: UserData) : MainActivityUiState
+
+//    object Error: MainActivityUiState
 }

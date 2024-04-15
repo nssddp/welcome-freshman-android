@@ -16,6 +16,11 @@ import com.baidu.location.BDAbstractLocationListener
 import com.baidu.location.BDLocation
 import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
+import com.baidu.mapapi.map.BaiduMap
+import com.baidu.mapapi.map.MapStatus
+import com.baidu.mapapi.map.MapStatusUpdateFactory
+import com.baidu.mapapi.map.MyLocationData
+import com.baidu.mapapi.model.LatLng
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -178,6 +183,7 @@ class TestLocationManager @Inject constructor(
 class BDLocationManager @Inject constructor(
     private val locationClient: LocationClient?,
     private val option: LocationClientOption,
+    @ApplicationContext private val context: Context,
 ) {
 
     fun getLocation(onGetLocation: (Pair<Double, Double>) -> Unit) {
@@ -185,7 +191,7 @@ class BDLocationManager @Inject constructor(
         option.setLocationPurpose(LocationClientOption.BDLocationPurpose.SignIn)
 //        option.setOnceLocation(true)
 
-        if (locationClient != null) {
+        if (locationClient != null && context.areLocationPermissionsGranted()) {
             locationClient.locOption = option
 
             val locationListener = object : BDAbstractLocationListener() {
@@ -199,6 +205,53 @@ class BDLocationManager @Inject constructor(
             if (!locationClient.isStarted) {
                 locationClient.registerLocationListener(locationListener)
                 locationClient.start()
+            }
+        }
+    }
+
+    private var firstLoc = true
+    fun getMapLocation(map: BaiduMap /*onGetLocData: (MyLocationData) -> Unit*/) {
+
+
+        if (locationClient != null && context.areLocationPermissionsGranted()) {
+            locationClient.locOption = option.apply {
+                setCoorType("bd09ll")
+            }
+
+            val locationListener = object : BDAbstractLocationListener() {
+                override fun onReceiveLocation(location: BDLocation?) {
+                    if (location != null) {
+//                        locationClient.stop()
+
+                        val locationData = MyLocationData.Builder()
+//                            .accuracy(location.radius)
+                            .direction(location.direction)
+                            .longitude(location.longitude).latitude(location.latitude)
+                            .build()
+//                        if (firstLoc) {
+                        firstLoc = false
+                        map.setMapStatus(
+                            MapStatusUpdateFactory.newMapStatus(
+                                MapStatus.Builder()
+                                    .zoom(19f)
+                                    .target(LatLng(30.831086,106.125039))
+                                    .build()
+                            )
+                        )
+//                        }
+                        map.setMyLocationData(locationData)
+                        locationClient.stop()
+
+                    }
+                }
+            }
+            if (!locationClient.isStarted) {
+                locationClient.registerLocationListener(locationListener)
+                locationClient.start()
+            } else {
+                locationClient.unRegisterLocationListener(locationListener)
+                locationClient.registerLocationListener(locationListener)
+                locationClient.restart()
             }
         }
     }

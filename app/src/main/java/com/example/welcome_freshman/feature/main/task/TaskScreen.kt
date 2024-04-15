@@ -2,6 +2,8 @@ package com.example.welcome_freshman.feature.main.task
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,13 +18,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,6 +56,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,15 +67,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.welcome_freshman.R
+import com.example.welcome_freshman.core.data.model.Progress
 import com.example.welcome_freshman.core.data.model.Task
+import com.example.welcome_freshman.feature.AiChat.ChatDialog
+import com.example.welcome_freshman.ui.component.GifImage
 import com.example.welcome_freshman.ui.component.IndeterminateCircularIndicator
 import com.example.welcome_freshman.ui.component.NetworkErrorIndicator
 import com.example.welcome_freshman.ui.component.PullToReFreshBox
 import com.example.welcome_freshman.ui.theme.WelcomeFreshmanTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -80,13 +95,16 @@ import java.util.Locale
 fun TaskRoute(onDetailClick: (String) -> Unit = {}, viewModel: TaskViewModel = hiltViewModel()) {
     val uiState by viewModel.taskUiState.collectAsState()
 
+    val adUrl by viewModel.adUrl.collectAsState()
+
     val refreshState = rememberPullToRefreshState()
 
     TaskScreen(
         onDetailClick = onDetailClick,
         uiState = uiState,
         refreshState = refreshState,
-        getTasks = viewModel::getTasks
+        getTasks = viewModel::getTasks,
+        adUrl = adUrl,
     )
 }
 
@@ -97,16 +115,22 @@ fun TaskScreen(
     uiState: TaskUiState,
     refreshState: PullToRefreshState,
     getTasks: () -> Unit,
+    adUrl: String?,
 ) {
     var tasks: List<Task> by remember {
         mutableStateOf(emptyList())
     }
+
     val sampleData by remember {
         mutableStateOf(getSampleData(80))
     }
 
-    var filterType by remember {
-        mutableStateOf(0)
+    var filterType by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    var userName by remember {
+        mutableStateOf("")
     }
 
     if (refreshState.isRefreshing) {
@@ -119,7 +143,16 @@ fun TaskScreen(
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
 
-    PullToReFreshBox(state = refreshState){
+    PullToReFreshBox(state = refreshState) {
+
+        Image(
+            painter = rememberAsyncImagePainter(model = R.drawable.home_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alpha = 0.95f
+        )
+
         LazyColumn(
             Modifier.fillMaxSize(),
             state = listState,
@@ -133,9 +166,39 @@ fun TaskScreen(
                     Modifier
                         .fillMaxWidth()
                         .height(180.dp)
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    userName = userName,
                 )
             }
+
+            // 广告
+            item {
+                Box(Modifier.padding(10.dp)) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = adUrl, placeholder = painterResource(
+                                id = R.drawable.adpalceholder
+                            )
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp),
+                        contentScale = ContentScale.Crop,
+                    )
+                    Text(
+                        text = "广告",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.background(
+                            Color.White.copy(.4f),
+                            shape = RoundedCornerShape(3.dp)
+                        )
+                    )
+
+
+                }
+            }
+
             item {
                 Box {
                     TaskSection(title = R.string.today_task_title) {
@@ -152,7 +215,8 @@ fun TaskScreen(
                             filterChipOptions.fastForEachIndexed { index, chipName ->
                                 TaskFilterChip(
                                     chipName = chipName,
-                                    selected = { selectedFilterChip == chipName }) {
+                                    selected = { selectedFilterChip == chipName }
+                                ) {
                                     selectedFilterChip = chipName
                                     filterType = index
 
@@ -180,35 +244,45 @@ fun TaskScreen(
 
                 is TaskUiState.Success -> {
                     refreshState.endRefresh()
-                    scope.launch {
-                        when (filterType) {
-                            0 -> tasks = uiState.tasks
-
-                            1 -> tasks = uiState.tasks.filter { task ->
-                                task.taskType == "主线任务"
-                            }
-
-                            2 -> tasks = uiState.tasks.filter { task ->
-                                task.taskType == "支线任务"
-                            }
+                    uiState.homeDto.stuName.let {
+                        if (it != null) {
+                            userName = it
                         }
                     }
 
-                    items(items = tasks, key = { task ->
-                        task.taskId
-                    }) { task ->
-                        TaskListItem(
-                            task = task,
-                            /*task.taskName,
-                            task.taskType,
-                            task.validTime,
-                            task.description,*/
-                            onDetailClick = onDetailClick
-                        )
+                    if (uiState.homeDto.tasks != null && uiState.homeDto.progress != null) {
+                        tasks = updateTaskProgress(uiState.homeDto.tasks, uiState.homeDto.progress)
+
+                        when (filterType) {
+                            0 -> {}
+
+                            1 -> tasks = tasks.filter { task ->
+                                task.isMainline == 0
+                            }
+
+                            2 -> tasks = tasks.filter { task ->
+                                task.isMainline == 1
+                            }
+                        }
+
+                        items(items = tasks, key = { task ->
+                            task.taskId
+                        }) { task ->
+                            TaskListItem(
+                                task = task,
+                                /*task.taskName,
+                                task.taskType,
+                                task.validTime,
+                                task.description,*/
+                                onDetailClick = onDetailClick,
+                            )
+                        }
                     }
+
+
                 }
 
-                else -> {
+                TaskUiState.Error -> {
                     refreshState.endRefresh()
                     item {
                         Spacer(modifier = Modifier.height(100.dp))
@@ -235,11 +309,10 @@ fun TaskScreen(
                     scope.launch { listState.scrollToItem(0) }
                 }
             ) {
-                Icon(imageVector = Icons.Rounded.ArrowUpward, null)
+                Icon(imageVector = Icons.Rounded.KeyboardArrowUp, null)
             }
         }
     }
-
 
 }
 
@@ -258,17 +331,16 @@ fun TaskFilterChip(chipName: String, selected: () -> Boolean, onClick: () -> Uni
                     modifier = Modifier.size(FilterChipDefaults.IconSize)
                 )
             }
-        }
+        },
+        colors = FilterChipDefaults.filterChipColors(containerColor = Color.White.copy(.6f))
     )
 }
 
 @Composable
 fun TaskListItem(
     task: Task,
-    progress: Float = 0.7f,
     onDetailClick: (String) -> Unit = {},
 ) {
-    val currentProgress by remember { mutableStateOf(progress) }
 
     Box(
         Modifier
@@ -276,7 +348,7 @@ fun TaskListItem(
             .clickable(interactionSource = remember {
                 MutableInteractionSource()
             }, indication = null) {
-                onDetailClick("")
+                onDetailClick(task.taskId.toString())
             }
     ) {
         ElevatedCard(
@@ -284,7 +356,7 @@ fun TaskListItem(
                 .fillMaxWidth()
                 .padding(top = 12.dp),
             elevation = CardDefaults.cardElevation(3.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inverseOnSurface)
+            colors = CardDefaults.cardColors(containerColor = Color.White.copy(.6f))
         ) {
             Column {
                 // 任务信息部分
@@ -327,13 +399,13 @@ fun TaskListItem(
                     // 右边部分
                     Column {
                         Text(
-                            text = task.validTime ?: "",
+                            text = "剩余${task.validTime?.let { getValidTime(it) } ?: ""} 小时",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 16.dp, end = 12.dp)
                         )
                         Text(
-                            text = "价值:${task.taskValue}",
+                            text = "价值: ${task.taskValue}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(top = 16.dp, end = 12.dp)
@@ -353,12 +425,17 @@ fun TaskListItem(
                         modifier = Modifier.padding(start = 16.dp)
                     )
                     LinearProgressIndicator(
-                        progress = { currentProgress },
+                        progress = { task.progress ?: 0.0f },
                         modifier = Modifier
-                            .fillMaxWidth(0.7f)
+                            .fillMaxWidth(0.8f)
                             .padding(vertical = 12.dp),
                     )
-                    Text(text = "%${progress * 100}", style = MaterialTheme.typography.labelMedium)
+                    Text(
+                        text = "${task.progress?.times(100) ?: (0.0f * 100)}%",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+
                 }
 
             }
@@ -366,7 +443,9 @@ fun TaskListItem(
         }
 
         TaskType(
-            taskType = task.taskType ?: "", modifier = Modifier
+            taskType = task.taskType ?: "",
+            isMain = task.isMainline ?: 0,
+            modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = 8.dp)
         )
@@ -376,10 +455,11 @@ fun TaskListItem(
 }
 
 @Composable
-fun TaskType(modifier: Modifier, taskType: String) {
+fun TaskType(modifier: Modifier, taskType: String, isMain: Int) {
     Box(
         modifier = modifier.background(
-            MaterialTheme.colorScheme.primary,
+            if (isMain == 0) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.inversePrimary,
             MaterialTheme.shapes.large
         )
     ) {
@@ -404,14 +484,16 @@ fun TaskSection(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .paddingFromBaseline(top = 40.dp, bottom = 16.dp)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            fontWeight = FontWeight.Bold
         )
         content()
     }
 }
 
 @Composable
-fun HomeMainCard(modifier: Modifier) {
+fun HomeMainCard(modifier: Modifier = Modifier, userName: String) {
+    val context = LocalContext.current
     val currentTime = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyy年M月dd日 EEEE", Locale.CHINA)
     var formatted by remember {
@@ -428,7 +510,20 @@ fun HomeMainCard(modifier: Modifier) {
     })
 
 
-    OutlinedCard(modifier) {
+    var isShowChatDialog by remember {
+        mutableStateOf(false)
+    }
+
+
+    OutlinedCard(
+        modifier,
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = BorderStroke(
+            1.dp,
+            Color.Black
+        )
+    ) {
+
         Text(
             text = formatted,
             Modifier.padding(start = 8.dp, top = 8.dp),
@@ -436,28 +531,124 @@ fun HomeMainCard(modifier: Modifier) {
         )
 
         Text(
-            text = "早上好，GGBone!",
+            text = "你好，$userName",
             Modifier.padding(start = 8.dp, top = 8.dp),
             style = MaterialTheme.typography.titleMedium
         )
+
+
+        Row(Modifier.fillMaxWidth()) {
+            GifImage(
+                painter = R.drawable.meme_cat,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    isShowChatDialog = !isShowChatDialog
+                }
+            )
+
+            Image(
+                painter = painterResource(id = R.drawable.dialog_kuang),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        isShowChatDialog = !isShowChatDialog
+                    }
+            )
+
+        }
+
     }
+
+    if (isShowChatDialog)
+        ChatDialog(
+            onDismissRequest = { isShowChatDialog = false }
+        )
 }
 
 fun getSampleData(size: Int): List<String> {
     return (1..size).map { "This is Task $it" }
 }
 
+private fun getValidTime(endTime: String): String {
+    // 获取当前时间
+    val currentTime = LocalDateTime.now()
+
+    // 指定目标时间
+//    val targetTimeStr = "2024-03-01T00:00:00"
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    val targetTime = LocalDateTime.parse(endTime, formatter)
+
+    // 计算当前时间和目标时间之间的差值
+    val duration = Duration.between(currentTime, targetTime)
+
+    // 将差值转换为小时数
+    val hours = duration.toHours()
+    val remainingHours = if (duration.isNegative) 0 else hours
+    return remainingHours.toString()
+}
+
+
+fun updateTaskProgress(tasks: List<Task>, progressList: List<Progress>): List<Task> {
+    // 创建一个 taskId 到 progress 的映射，方便后续查找
+    val progressMap = progressList.associateBy { it.taskId?.toInt() }
+
+    // 遍历 tasks 列表，更新每个 Task 的 progress 属性
+    return tasks.map { task ->
+        // 从映射中查找对应的 progress 值
+        val progressValue = progressMap[task.taskId] // 注意 taskId 是 Int 类型，需要转换为 Float
+        // 创建一个新的 Task 实例，其中 progress 属性被更新
+        task.copy(progress = progressValue?.progress)
+    }
+}
+
+@Composable
+fun DialogAD(onDismiss: () -> Unit, adUrl: String?) {
+    AlertDialog(onDismissRequest = { onDismiss() }, confirmButton = { /*TODO*/ }, text = {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 300.dp, horizontal = 100.dp)
+        ) {
+            IconButton(
+                onClick = { onDismiss() },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp)
+            ) {
+                Icon(imageVector = Icons.Filled.Cancel, contentDescription = null)
+            }
+            Image(
+                painter = rememberAsyncImagePainter(model = adUrl),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+    })
+}
+
 
 @Preview(showBackground = true)
 @Composable
-fun taskItem() {
+fun TaskItemPreview() {
     WelcomeFreshmanTheme {
         /*TaskListItem(
-            taskTitle = "准备好通知书",
-            content = "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-            validTime = "剩余12小时",
-            taskType = "主线任务"
+            Task(1, "ggbone", "主线任务", 1, 0, 1, "这是一个任务")
         )*/
+        HomeMainCard(
+            Modifier
+                .fillMaxWidth()
+                .height(180.dp)
+                .padding(horizontal = 16.dp), userName = "老6"
+        )
 
 //        TaskScreen(uiState = null, refreshState = null)
     }

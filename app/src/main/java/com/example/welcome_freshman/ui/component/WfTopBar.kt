@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 
 /**
@@ -27,7 +28,7 @@ fun WfTopAppBar(
     @StringRes titleRes: Int,
     navigationIcon: ImageVector,
     navigationIconContentDescription: String,
-    actionIcon: ImageVector,
+    actionIcon: Int,
     actionIconContentDescription: String,
     modifier: Modifier = Modifier,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
@@ -49,7 +50,7 @@ fun WfTopAppBar(
         actions = {
             IconButton(onClick = onActionClick) {
                 Icon(
-                    imageVector = actionIcon,
+                    painter = painterResource(id = actionIcon),
                     contentDescription = actionIconContentDescription,
                     tint = MaterialTheme.colorScheme.onSurface,
                 )

@@ -78,6 +78,11 @@ protobuf {
 
 
 dependencies {
+    // 多边形
+    implementation ("androidx.graphics:graphics-shapes:1.0.0-alpha05")
+//    api ("com.tencent.mm.opensdk:wechat-sdk-android:6.8.28")
+
+//    implementation("com.airbnb.android:lottie-compose:4.1.0")
     // 为了转圈动画下载
     implementation("androidx.compose.material3:material3-android:1.2.1")
 
@@ -103,8 +108,14 @@ dependencies {
     // 定位
     implementation("com.baidu.lbsyun:BaiduMapSDK_Location:9.3.7")
 
+    // 地图
+    implementation ("com.baidu.lbsyun:BaiduMapSDK_Map:7.5.4")
+    implementation ("com.baidu.lbsyun:BaiduMapSDK_Search:7.5.4")
+    implementation ("com.baidu.lbsyun:BaiduMapSDK_Util:7.5.4")
+
     // 加载图片
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-gif:2.6.0")
 
     // 网络请求
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
@@ -163,3 +174,5 @@ dependencies {
 kapt {
     correctErrorTypes = true
 }
+
+

@@ -15,13 +15,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.baidu.location.LocationClient
 import com.example.welcome_freshman.core.data.model.DarkThemeConfig
 import com.example.welcome_freshman.feature.ad.AdScreen
@@ -55,14 +56,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        splashScreen.setKeepOnScreenCondition {
-            when (uiState) {
-                MainActivityUiState.Loading -> true
-                is MainActivityUiState.Success -> false
-            }
-        }
-
-
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 Color.TRANSPARENT, Color.TRANSPARENT
@@ -73,6 +66,22 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
+            val adUrl by viewModel.adUrl.collectAsState()
+            val painter = rememberAsyncImagePainter(model = adUrl)
+
+            splashScreen.setKeepOnScreenCondition {
+//                if(painter.state is AsyncImagePainter.State.Success) {
+                    when (uiState) {
+                        MainActivityUiState.Loading -> true
+                        is MainActivityUiState.Success -> {
+//                        while (){}
+                            false
+                        }
+                    }
+                /*}else
+                    true*/
+            }
+
 
             val darkTheme = shouldUseDarkTheme(uiState = uiState)
 
@@ -94,10 +103,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-                val adUrl by viewModel.adUrl.collectAsState()
 
                 var count by rememberSaveable {
-                    mutableIntStateOf(5)
+                    mutableIntStateOf(10)
                 }
                 /*var showAd by remember {
                     mutableStateOf(true)
@@ -114,7 +122,7 @@ class MainActivity : ComponentActivity() {
                         Log.d("startDestination", startDestination)
                         WfApp(startDestination = startDestination)
                     } else {
-                        AdScreen(count = { count }, adUrl = { adUrl }, onSkipClick = { count = 0 })
+                        AdScreen(count = { count }, painter = { painter }, onSkipClick = { count = 0 })
 
                     }
                 }

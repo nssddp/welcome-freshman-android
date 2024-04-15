@@ -25,8 +25,8 @@ import com.example.welcome_freshman.R
  *@author GFCoder
  */
 @Composable
-fun ValidCircularIndicator(indicatorState: Int) {
-    Dialog(onDismissRequest = {}) {
+fun ValidCircularIndicator(indicatorState: Int, onDismiss: () -> Unit = {}) {
+    Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
                 .size(120.dp),
@@ -43,16 +43,40 @@ fun ValidCircularIndicator(indicatorState: Int) {
                 }
 
                 1 -> {
+                    /*val composition by rememberLottieComposition(
+                        spec = LottieCompositionSpec.RawRes(
+                            R.raw.mission_completed
+                        )
+                    )
+                    var isPlaying by remember { mutableStateOf(false) }
+                    val progress by animateLottieCompositionAsState(
+                        composition = composition,
+                        isPlaying = true,
+
+                    )
+                    LaunchedEffect(progress) {
+                        if (progress == 0f) isPlaying = true
+                        if (progress == 1f) isPlaying = false
+                    }*/
+
                     Column(
                         Modifier
                             .fillMaxSize()
                             .wrapContentSize(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+
+                        /*LottieAnimation(
+                            modifier = Modifier.size(80.dp),
+                            composition = composition,
+                            progress = progress
+                        )*/
                         Image(
                             painter = painterResource(id = R.drawable.valid_success),
                             contentDescription = "valid_success",
-                            modifier = Modifier.width(76.dp).padding(bottom = 6.dp)
+                            modifier = Modifier
+                                .width(76.dp)
+                                .padding(bottom = 6.dp)
                         )
                         Text(text = "验证成功", style = MaterialTheme.typography.bodySmall)
                     }
@@ -68,7 +92,9 @@ fun ValidCircularIndicator(indicatorState: Int) {
                         Image(
                             painter = painterResource(id = R.drawable.valid_fail),
                             contentDescription = "valid_success",
-                            modifier = Modifier.width(76.dp).padding(bottom = 6.dp)
+                            modifier = Modifier
+                                .width(76.dp)
+                                .padding(bottom = 6.dp)
                         )
                         Text(text = "验证失败, 请重试", style = MaterialTheme.typography.bodySmall)
                     }

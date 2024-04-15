@@ -90,7 +90,7 @@ class WfAppState constructor(
         }
 
         when (topLevelDestination) {
-            TopLevelDestination.TASK -> navController.navigateToTask(topLevelNavOptions)
+            TopLevelDestination.TASK -> navController.navigateToTask(navOptions = topLevelNavOptions)
             TopLevelDestination.RANK -> navController.navigateToRank(topLevelNavOptions)
             TopLevelDestination.PROFILE -> navController.navigateToProfile(topLevelNavOptions)
         }

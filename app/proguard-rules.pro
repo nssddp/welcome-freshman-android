@@ -32,4 +32,11 @@
 # is used.
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
 
+# 为了使用protobuf加的
 -keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+
+# 百度地图相关
+-keep class com.baidu.** {*;}
+-keep class vi.com.** {*;}
+-keep class com.baidu.vi.** {*;}
+-dontwarn com.baidu.**

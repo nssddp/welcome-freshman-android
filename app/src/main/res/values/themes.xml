@@ -5,7 +5,7 @@
 
     <style name="Theme.SplashScreen.MySplash" parent="Theme.SplashScreen">
         <!--        <item name="windowSplashScreenBackground">@color/pink</item>-->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/welcom_fresh_logo</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/Theme.Welcomefreshman</item>
     </style>
